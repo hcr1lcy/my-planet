@@ -107,6 +107,49 @@
         .empty-state { text-align: center; padding: 80px 20px; color: rgba(255,255,255,0.3); }
         .empty-state .icon { font-size: 3rem; margin-bottom: 15px; }
 
+        /* 背景设置 */
+        .bg-settings {
+            display: flex; gap: 25px; flex-wrap: wrap;
+            background: rgba(0,240,255,0.02);
+            border: 1px solid rgba(0,240,255,0.1);
+            border-radius: 16px;
+            padding: 25px;
+        }
+        .bg-preview {
+            width: 280px; height: 160px;
+            border-radius: 12px;
+            border: 1px solid rgba(0,240,255,0.15);
+            background-size: cover;
+            background-position: center;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .bg-controls { flex: 1; min-width: 250px; }
+        .bg-controls .form-group { margin-bottom: 18px; }
+        .bg-controls .form-label {
+            display: block; font-size: 0.75rem; color: rgba(255,255,255,0.4);
+            margin-bottom: 8px; letter-spacing: 2px; text-transform: uppercase;
+        }
+        .bg-controls .tags-input {
+            width: 100%; padding: 12px 16px;
+            background: rgba(0,240,255,0.03);
+            border: 1px solid rgba(0,240,255,0.1);
+            border-radius: 10px; color: #fff; font-size: 0.85rem; outline: none;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        .bg-controls .tags-input:focus { border-color: rgba(0,240,255,0.4); }
+        .bg-controls .btn {
+            padding: 10px 22px; border-radius: 8px; font-size: 0.85rem;
+            cursor: pointer; transition: all 0.3s; font-family: 'Noto Sans SC', sans-serif; border: 1px solid;
+        }
+        .btn-publish { background: linear-gradient(135deg, rgba(0,240,255,0.2), rgba(168,85,247,0.2)); border-color: rgba(0,240,255,0.5); color: #00f0ff; }
+        .btn-publish:hover { background: rgba(0,240,255,0.25); }
+        .btn-draft { background: transparent; border-color: rgba(255,170,0,0.4); color: #ffaa00; }
+        .btn-draft:hover { background: rgba(255,170,0,0.1); }
+        .btn-back { background: transparent; border-color: rgba(255,255,255,0.15); color: rgba(255,255,255,0.5); }
+        .btn-back:hover { border-color: rgba(255,255,255,0.3); color: #fff; }
+
         /* 确认弹窗 */
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -161,6 +204,33 @@
             <a href="editor.html" class="btn-new">+ NEW POST</a>
         </div>
         <div class="post-list" id="postList"></div>
+
+        <!-- 背景设置 -->
+        <div style="margin-top: 60px;">
+            <h2 style="font-family: 'Orbitron', sans-serif; font-size: 1.2rem; color: #00f0ff; margin-bottom: 25px;">// BACKGROUND SETTINGS</h2>
+            <div class="bg-settings">
+                <div class="bg-preview" id="bgPreview">
+                    <span style="color: rgba(255,255,255,0.3); font-size: 0.85rem;">当前背景预览</span>
+                </div>
+                <div class="bg-controls">
+                    <div class="form-group">
+                        <label class="form-label">图片链接 (URL)</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" class="tags-input" id="bgUrl" placeholder="https://example.com/image.jpg" style="flex:1;">
+                            <button class="btn btn-publish" onclick="applyBgUrl()" style="white-space:nowrap;">应用</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">或上传本地图片</label>
+                        <input type="file" id="bgFile" accept="image/*" style="display:none;" onchange="handleBgFile(event)">
+                        <button class="btn btn-draft" onclick="document.getElementById('bgFile').click()">选择文件</button>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button class="btn btn-back" onclick="resetBg()">恢复默认</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- 删除确认弹窗 -->
@@ -236,7 +306,46 @@
             posts = posts.filter(p => p.id !== deleteTargetId);
             localStorage.setItem('planet_posts', JSON.stringify(posts));
             closeModal();
-            renderPosts();
+        renderPosts();
+
+        // 背景设置
+        function loadBgSettings() {
+            const bg = localStorage.getItem('planet_bg');
+            const preview = document.getElementById('bgPreview');
+            const urlInput = document.getElementById('bgUrl');
+            if (bg) {
+                preview.style.backgroundImage = `url(${bg})`;
+                preview.innerHTML = '';
+                urlInput.value = bg.startsWith('data:') ? '(已上传本地图片)' : bg;
+            }
+        }
+
+        function applyBgUrl() {
+            const url = document.getElementById('bgUrl').value.trim();
+            if (!url) return;
+            localStorage.setItem('planet_bg', url);
+            loadBgSettings();
+        }
+
+        function handleBgFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                localStorage.setItem('planet_bg', e.target.result);
+                loadBgSettings();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function resetBg() {
+            localStorage.removeItem('planet_bg');
+            document.getElementById('bgPreview').style.backgroundImage = 'none';
+            document.getElementById('bgPreview').innerHTML = '<span style="color: rgba(255,255,255,0.3); font-size: 0.85rem;">当前背景预览</span>';
+            document.getElementById('bgUrl').value = '';
+        }
+
+        loadBgSettings();
         }
 
         function escapeHtml(str) {

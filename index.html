@@ -24,6 +24,13 @@
             width: 100%; height: 100%;
             z-index: -2;
             background: radial-gradient(ellipse at 20% 50%, #0a0e2a 0%, #000 70%);
+            background-size: cover;
+            background-position: center;
+            transition: background-image 0.5s ease;
+        }
+
+        #starfield.custom-bg {
+            background-color: #000;
         }
 
         .star {
@@ -814,6 +821,17 @@
             }
         }
         createStars();
+
+        // 加载自定义背景
+        function loadCustomBg() {
+            const bg = localStorage.getItem('planet_bg');
+            const starfield = document.getElementById('starfield');
+            if (bg) {
+                starfield.style.backgroundImage = `url(${bg})`;
+                starfield.classList.add('custom-bg');
+            }
+        }
+        loadCustomBg();
 
         // 鼠标跟随光效
         const glow = document.getElementById('cursorGlow');

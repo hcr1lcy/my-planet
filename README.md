@@ -46,7 +46,8 @@ D:\mimocode\
 
 ### admin.html - 控制台
 - **功能**: 显示所有文章（已发布/草稿）、编辑、删除（带确认弹窗）
-- **数据**: 从 localStorage 读取 `planet_posts`
+- **背景设置**: 支持 URL 输入或本地上传，恢复默认
+- **数据**: 从 localStorage 读取 `planet_posts` 和 `planet_bg`
 - **统计**: 总数、已发布数、草稿数
 
 ### editor.html - 编辑器
@@ -106,6 +107,12 @@ D:\mimocode\
   }
 ]
 ```
+
+### localStorage key: `planet_bg`
+- 存储首页自定义背景图片
+- 值: 图片 URL 字符串 或 base64 Data URL
+- 由 admin.html 背景设置面板管理
+- index.html 启动时读取并应用
 
 ---
 
