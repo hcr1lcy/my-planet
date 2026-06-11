@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>编辑器 | Editor</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+SC:wght@300;400;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: #0a0a1a;
+            color: #fff;
+            min-height: 100vh;
+        }
+        #starfield { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; background: radial-gradient(ellipse at 20% 50%, #0a0e2a 0%, #000 70%); }
+        .star { position: absolute; background: #fff; border-radius: 50%; animation: twinkle var(--dur) ease-in-out infinite alternate; }
+        @keyframes twinkle { 0% { opacity: 0.2; } 100% { opacity: 1; } }
+
+        nav {
+            position: fixed; top: 0; width: 100%; z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 50px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, transparent 100%);
+            backdrop-filter: blur(10px);
+        }
+        .logo { font-family: 'Orbitron', sans-serif; font-size: 1.4rem; font-weight: 900; background: linear-gradient(135deg, #00f0ff, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
+        .nav-links { display: flex; gap: 20px; list-style: none; }
+        .nav-links a { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 0.85rem; letter-spacing: 1px; transition: color 0.3s; }
+        .nav-links a:hover { color: #00f0ff; }
+
+        .container { max-width: 850px; margin: 0 auto; padding: 120px 20px 60px; }
+
+        .editor-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 35px; flex-wrap: wrap; gap: 15px;
+        }
+        .editor-header h1 {
+            font-family: 'Orbitron', sans-serif; font-size: 1.4rem;
+            background: linear-gradient(135deg, #00f0ff, #a855f7);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .editor-actions { display: flex; gap: 10px; }
+
+        .btn {
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Noto Sans SC', sans-serif;
+            border: 1px solid;
+        }
+        .btn-draft { background: transparent; border-color: rgba(255,170,0,0.4); color: #ffaa00; }
+        .btn-draft:hover { background: rgba(255,170,0,0.1); }
+        .btn-publish { background: linear-gradient(135deg, rgba(0,240,255,0.2), rgba(168,85,247,0.2)); border-color: rgba(0,240,255,0.5); color: #00f0ff; font-family: 'Orbitron', sans-serif; letter-spacing: 1px; }
+        .btn-publish:hover { background: rgba(0,240,255,0.25); box-shadow: 0 0 20px rgba(0,240,255,0.15); }
+        .btn-back { background: transparent; border-color: rgba(255,255,255,0.15); color: rgba(255,255,255,0.5); text-decoration: none; }
+        .btn-back:hover { border-color: rgba(255,255,255,0.3); color: #fff; }
+
+        .form-group { margin-bottom: 25px; }
+        .form-label {
+            display: block; font-size: 0.8rem; color: rgba(255,255,255,0.4);
+            margin-bottom: 8px; letter-spacing: 2px; text-transform: uppercase;
+        }
+
+        .title-input {
+            width: 100%;
+            padding: 16px 0;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid rgba(0,240,255,0.1);
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .title-input:focus { border-bottom-color: #00f0ff; }
+        .title-input::placeholder { color: rgba(255,255,255,0.15); }
+
+        .tags-input {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(0,240,255,0.03);
+            border: 1px solid rgba(0,240,255,0.1);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .tags-input:focus { border-color: rgba(0,240,255,0.4); }
+        .tags-input::placeholder { color: rgba(255,255,255,0.2); }
+        .tags-hint { font-size: 0.75rem; color: rgba(255,255,255,0.25); margin-top: 6px; }
+
+        .editor-tabs {
+            display: flex; gap: 0; margin-bottom: 0;
+            border-bottom: 1px solid rgba(0,240,255,0.1);
+        }
+        .editor-tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,0.4);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 2px solid transparent;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        .editor-tab:hover { color: rgba(255,255,255,0.7); }
+        .editor-tab.active { color: #00f0ff; border-bottom-color: #00f0ff; }
+
+        .content-area {
+            width: 100%;
+            min-height: 500px;
+            padding: 25px;
+            background: rgba(0,240,255,0.02);
+            border: 1px solid rgba(0,240,255,0.1);
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            color: rgba(255,255,255,0.85);
+            font-size: 0.95rem;
+            line-height: 1.9;
+            outline: none;
+            resize: vertical;
+            font-family: 'Noto Sans SC', sans-serif;
+            transition: border-color 0.3s;
+        }
+        .content-area:focus { border-color: rgba(0,240,255,0.3); }
+        .content-area::placeholder { color: rgba(255,255,255,0.15); }
+
+        .preview-area {
+            display: none;
+            width: 100%;
+            min-height: 500px;
+            padding: 30px;
+            background: rgba(0,240,255,0.02);
+            border: 1px solid rgba(0,240,255,0.1);
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            color: rgba(255,255,255,0.8);
+            line-height: 2;
+        }
+        .preview-area h1, .preview-area h2, .preview-area h3 { color: #00f0ff; margin: 20px 0 10px; font-family: 'Orbitron', sans-serif; }
+        .preview-area h2 { font-size: 1.4rem; }
+        .preview-area h3 { font-size: 1.1rem; color: #a855f7; }
+        .preview-area p { margin-bottom: 15px; }
+        .preview-area code { background: rgba(0,240,255,0.08); padding: 2px 8px; border-radius: 4px; color: #00f0ff; font-size: 0.9rem; }
+        .preview-area pre { background: rgba(0,240,255,0.03); border: 1px solid rgba(0,240,255,0.1); border-radius: 8px; padding: 20px; margin: 15px 0; overflow-x: auto; }
+        .preview-area pre code { background: none; padding: 0; color: rgba(255,255,255,0.8); }
+        .preview-area blockquote { border-left: 3px solid #a855f7; padding: 12px 20px; margin: 15px 0; background: rgba(168,85,247,0.05); border-radius: 0 8px 8px 0; color: rgba(255,255,255,0.6); font-style: italic; }
+        .preview-area ul, .preview-area ol { margin: 10px 0; padding-left: 25px; }
+        .preview-area li { margin-bottom: 5px; }
+        .preview-area a { color: #00f0ff; }
+        .preview-area hr { border: none; height: 1px; background: linear-gradient(90deg, transparent, rgba(0,240,255,0.3), transparent); margin: 30px 0; }
+
+        .toast {
+            position: fixed; bottom: 30px; right: 30px;
+            padding: 14px 24px;
+            background: rgba(0,255,136,0.15);
+            border: 1px solid rgba(0,255,136,0.4);
+            border-radius: 10px;
+            color: #00ff88;
+            font-size: 0.85rem;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s;
+            z-index: 999;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+
+        footer { text-align: center; padding: 40px; border-top: 1px solid rgba(255,255,255,0.05); color: rgba(255,255,255,0.3); font-size: 0.8rem; letter-spacing: 2px; }
+
+        @media (max-width: 768px) {
+            nav { padding: 15px 20px; }
+            .title-input { font-size: 1.3rem; }
+            .editor-header { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <div id="starfield"></div>
+    <nav>
+        <a href="index.html" class="logo">MY PLANET</a>
+        <ul class="nav-links">
+            <li><a href="index.html">首页</a></li>
+            <li><a href="blog.html">日志</a></li>
+            <li><a href="admin.html">控制台</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="editor-header">
+            <h1 id="editorTitle">// NEW POST</h1>
+            <div class="editor-actions">
+                <a href="admin.html" class="btn btn-back">← 返回</a>
+                <button class="btn btn-draft" onclick="save('draft')">保存草稿</button>
+                <button class="btn btn-publish" onclick="save('published')">发布</button>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">标题</label>
+            <input type="text" class="title-input" id="postTitle" placeholder="输入文章标题...">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">标签</label>
+            <input type="text" class="tags-input" id="postTags" placeholder="tech, life, ai, design">
+            <div class="tags-hint">用逗号分隔，例如：tech, life, ai</div>
+        </div>
+
+        <div class="editor-tabs">
+            <button class="editor-tab active" onclick="switchTab('edit')">编辑</button>
+            <button class="editor-tab" onclick="switchTab('preview')">预览</button>
+        </div>
+
+        <textarea class="content-area" id="postContent" placeholder="开始写作...
+
+支持 Markdown 语法：
+# 标题
+## 二级标题
+**粗体** *斜体*
+- 列表项
+> 引用
+`代码`
+```代码块```
+---"></textarea>
+        <div class="preview-area" id="previewArea"></div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <footer>© 2026 MY PLANET — EDITOR</footer>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const editId = params.get('id');
+        let currentPost = null;
+
+        function getPosts() { return JSON.parse(localStorage.getItem('planet_posts') || '[]'); }
+        function savePosts(posts) { localStorage.setItem('planet_posts', JSON.stringify(posts)); }
+
+        if (editId) {
+            const posts = getPosts();
+            currentPost = posts.find(p => p.id === editId);
+            if (currentPost) {
+                document.getElementById('editorTitle').textContent = '// EDIT POST';
+                document.getElementById('postTitle').value = currentPost.title;
+                document.getElementById('postTags').value = (currentPost.tags || []).join(', ');
+                document.getElementById('postContent').value = currentPost.content;
+            }
+        }
+
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+        }
+
+        function save(status) {
+            const title = document.getElementById('postTitle').value.trim();
+            const content = document.getElementById('postContent').value.trim();
+            const tagsStr = document.getElementById('postTags').value.trim();
+            const tags = tagsStr ? tagsStr.split(/[,，]/).map(t => t.trim().toLowerCase()).filter(Boolean) : [];
+
+            if (!title) { showToast('请输入标题', '#ff4466'); return; }
+            if (!content) { showToast('请输入内容', '#ff4466'); return; }
+
+            let posts = getPosts();
+
+            if (currentPost) {
+                const idx = posts.findIndex(p => p.id === currentPost.id);
+                if (idx !== -1) {
+                    posts[idx] = { ...posts[idx], title, content, tags, status, updatedAt: Date.now() };
+                }
+            } else {
+                const newPost = {
+                    id: generateId(),
+                    title, content, tags, status,
+                    createdAt: Date.now(),
+                    updatedAt: Date.now(),
+                    comments: []
+                };
+                posts.unshift(newPost);
+                currentPost = newPost;
+            }
+
+            savePosts(posts);
+            showToast(status === 'published' ? '已发布！' : '草稿已保存', '#00ff88');
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.editor-tab').forEach(t => t.classList.remove('active'));
+            const textarea = document.getElementById('postContent');
+            const preview = document.getElementById('previewArea');
+
+            if (tab === 'edit') {
+                document.querySelectorAll('.editor-tab')[0].classList.add('active');
+                textarea.style.display = 'block';
+                preview.style.display = 'none';
+            } else {
+                document.querySelectorAll('.editor-tab')[1].classList.add('active');
+                textarea.style.display = 'none';
+                preview.style.display = 'block';
+                preview.innerHTML = markdownToHtml(textarea.value);
+            }
+        }
+
+        function markdownToHtml(md) {
+            let html = md
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+                .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+                .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+                .replace(/^---$/gm, '<hr>')
+                .replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>')
+                .replace(/^\- (.+)$/gm, '<li>$1</li>')
+                .replace(/(<li>.*<\/li>\n?)+/g, m => '<ul>' + m + '</ul>')
+                .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.+?)\*/g, '<em>$1</em>')
+                .replace(/`([^`]+)`/g, '<code>$1</code>')
+                .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
+                .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
+                .replace(/\n{2,}/g, '</p><p>')
+                .replace(/\n/g, '<br>');
+            return '<p>' + html + '</p>';
+        }
+
+        function showToast(msg, color) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.borderColor = color;
+            t.style.color = color;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2500);
+        }
+
+        (function() {
+            const field = document.getElementById('starfield');
+            for (let i = 0; i < 80; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = Math.random() * 2 + 0.5;
+                star.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--dur:${Math.random()*3+1}s;animation-delay:${Math.random()*3}s;`;
+                field.appendChild(star);
+            }
+        })();
+    </script>
+</body>
+</html>

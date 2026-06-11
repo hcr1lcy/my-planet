@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>控制台 | Admin Panel</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+SC:wght@300;400;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: #0a0a1a;
+            color: #fff;
+            min-height: 100vh;
+        }
+        #starfield { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; background: radial-gradient(ellipse at 20% 50%, #0a0e2a 0%, #000 70%); }
+        .star { position: absolute; background: #fff; border-radius: 50%; animation: twinkle var(--dur) ease-in-out infinite alternate; }
+        @keyframes twinkle { 0% { opacity: 0.2; } 100% { opacity: 1; } }
+
+        nav {
+            position: fixed; top: 0; width: 100%; z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 50px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, transparent 100%);
+            backdrop-filter: blur(10px);
+        }
+        .logo { font-family: 'Orbitron', sans-serif; font-size: 1.4rem; font-weight: 900; background: linear-gradient(135deg, #00f0ff, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
+        .nav-links { display: flex; gap: 20px; list-style: none; }
+        .nav-links a { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 0.85rem; letter-spacing: 1px; transition: color 0.3s; }
+        .nav-links a:hover, .nav-links a.active { color: #00f0ff; }
+
+        .container { max-width: 1000px; margin: 0 auto; padding: 120px 20px 60px; }
+
+        .panel-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 40px; flex-wrap: wrap; gap: 15px;
+        }
+        .panel-header h1 {
+            font-family: 'Orbitron', sans-serif; font-size: 1.6rem;
+            background: linear-gradient(135deg, #00f0ff, #a855f7);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .panel-header .stats {
+            font-size: 0.8rem; color: rgba(255,255,255,0.4);
+        }
+        .panel-header .stats span { color: #00f0ff; font-family: 'Orbitron', sans-serif; }
+
+        .btn-new {
+            padding: 12px 28px;
+            background: linear-gradient(135deg, rgba(0,240,255,0.15), rgba(168,85,247,0.15));
+            border: 1px solid rgba(0,240,255,0.4);
+            border-radius: 50px;
+            color: #00f0ff;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            text-decoration: none;
+        }
+        .btn-new:hover {
+            background: rgba(0,240,255,0.2);
+            box-shadow: 0 0 30px rgba(0,240,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        .post-list { display: flex; flex-direction: column; gap: 15px; }
+
+        .post-item {
+            display: flex; align-items: center; gap: 20px;
+            background: rgba(0,240,255,0.02);
+            border: 1px solid rgba(0,240,255,0.08);
+            border-radius: 12px;
+            padding: 20px 25px;
+            transition: all 0.3s;
+        }
+        .post-item:hover { border-color: rgba(0,240,255,0.2); background: rgba(0,240,255,0.04); }
+
+        .post-status {
+            width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+        }
+        .post-status.published { background: #00ff88; box-shadow: 0 0 10px rgba(0,255,136,0.5); }
+        .post-status.draft { background: #ffaa00; box-shadow: 0 0 10px rgba(255,170,0,0.5); }
+
+        .post-info { flex: 1; min-width: 0; }
+        .post-info h3 { font-size: 1rem; color: #fff; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .post-info .meta { font-size: 0.75rem; color: rgba(255,255,255,0.35); display: flex; gap: 15px; flex-wrap: wrap; }
+        .post-info .meta span { display: flex; align-items: center; gap: 4px; }
+
+        .post-actions { display: flex; gap: 8px; flex-shrink: 0; }
+        .post-actions button, .post-actions a {
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid rgba(0,240,255,0.15);
+            border-radius: 8px;
+            color: rgba(255,255,255,0.6);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        .post-actions .btn-edit:hover { border-color: #00f0ff; color: #00f0ff; background: rgba(0,240,255,0.1); }
+        .post-actions .btn-view:hover { border-color: #a855f7; color: #a855f7; background: rgba(168,85,247,0.1); }
+        .post-actions .btn-delete:hover { border-color: #ff4466; color: #ff4466; background: rgba(255,68,102,0.1); }
+
+        .empty-state { text-align: center; padding: 80px 20px; color: rgba(255,255,255,0.3); }
+        .empty-state .icon { font-size: 3rem; margin-bottom: 15px; }
+
+        /* 确认弹窗 */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 1000;
+            align-items: center; justify-content: center;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal {
+            background: #111; border: 1px solid rgba(0,240,255,0.2);
+            border-radius: 16px; padding: 40px; max-width: 420px; width: 90%; text-align: center;
+        }
+        .modal h3 { font-family: 'Orbitron', sans-serif; color: #ff4466; margin-bottom: 15px; }
+        .modal p { color: rgba(255,255,255,0.6); margin-bottom: 25px; font-size: 0.9rem; }
+        .modal-btns { display: flex; gap: 12px; justify-content: center; }
+        .modal-btns button { padding: 10px 25px; border-radius: 8px; font-size: 0.85rem; cursor: pointer; border: 1px solid; font-family: 'Noto Sans SC', sans-serif; transition: all 0.3s; }
+        .btn-cancel { background: transparent; border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.6); }
+        .btn-cancel:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
+        .btn-confirm-delete { background: rgba(255,68,102,0.15); border-color: #ff4466; color: #ff4466; }
+        .btn-confirm-delete:hover { background: rgba(255,68,102,0.3); }
+
+        footer { text-align: center; padding: 40px; border-top: 1px solid rgba(255,255,255,0.05); color: rgba(255,255,255,0.3); font-size: 0.8rem; letter-spacing: 2px; }
+
+        @media (max-width: 768px) {
+            nav { padding: 15px 20px; }
+            .nav-links { gap: 12px; }
+            .post-item { flex-direction: column; align-items: flex-start; }
+            .post-actions { width: 100%; }
+            .post-actions button, .post-actions a { flex: 1; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <div id="starfield"></div>
+    <nav>
+        <a href="index.html" class="logo">MY PLANET</a>
+        <ul class="nav-links">
+            <li><a href="index.html">首页</a></li>
+            <li><a href="blog.html">日志</a></li>
+            <li><a href="admin.html" class="active">控制台</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="panel-header">
+            <div>
+                <h1>// CONTROL CENTER</h1>
+                <div class="stats" style="margin-top:8px;">共 <span id="totalCount">0</span> 篇文章 · <span id="publishedCount">0</span> 已发布 · <span id="draftCount">0</span> 草稿</div>
+            </div>
+            <a href="editor.html" class="btn-new">+ NEW POST</a>
+        </div>
+        <div class="post-list" id="postList"></div>
+    </div>
+
+    <!-- 删除确认弹窗 -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal">
+            <h3>DELETE POST</h3>
+            <p>确定要删除这篇文章吗？此操作不可撤销。</p>
+            <div class="modal-btns">
+                <button class="btn-cancel" onclick="closeModal()">取消</button>
+                <button class="btn-confirm-delete" onclick="confirmDelete()">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>© 2026 MY PLANET — CONTROL CENTER</footer>
+
+    <script>
+        let deleteTargetId = null;
+
+        function getPosts() {
+            return JSON.parse(localStorage.getItem('planet_posts') || '[]');
+        }
+
+        function renderPosts() {
+            const posts = getPosts();
+            const list = document.getElementById('postList');
+
+            const published = posts.filter(p => p.status === 'published').length;
+            const drafts = posts.filter(p => p.status === 'draft').length;
+            document.getElementById('totalCount').textContent = posts.length;
+            document.getElementById('publishedCount').textContent = published;
+            document.getElementById('draftCount').textContent = drafts;
+
+            if (posts.length === 0) {
+                list.innerHTML = '<div class="empty-state"><div class="icon">📡</div><p>还没有任何文章<br>点击 "NEW POST" 开始创作</p></div>';
+                return;
+            }
+
+            list.innerHTML = posts.sort((a, b) => b.updatedAt - a.updatedAt).map(post => `
+                <div class="post-item">
+                    <div class="post-status ${post.status}"></div>
+                    <div class="post-info">
+                        <h3>${escapeHtml(post.title)}</h3>
+                        <div class="meta">
+                            <span>📅 ${new Date(post.updatedAt).toLocaleDateString('zh-CN')}</span>
+                            <span>🏷 ${(post.tags || []).map(t => t.toUpperCase()).join(', ') || '无标签'}</span>
+                            <span>💬 ${(post.comments || []).length} 条评论</span>
+                            <span>${post.status === 'published' ? '✅ 已发布' : '📝 草稿'}</span>
+                        </div>
+                    </div>
+                    <div class="post-actions">
+                        <a href="editor.html?id=${post.id}" class="btn-edit">编辑</a>
+                        ${post.status === 'published' ? `<a href="post.html?id=${post.id}" class="btn-view" target="_blank">查看</a>` : ''}
+                        <button class="btn-delete" onclick="openDeleteModal('${post.id}')">删除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openDeleteModal(id) {
+            deleteTargetId = id;
+            document.getElementById('deleteModal').classList.add('show');
+        }
+
+        function closeModal() {
+            deleteTargetId = null;
+            document.getElementById('deleteModal').classList.remove('show');
+        }
+
+        function confirmDelete() {
+            if (!deleteTargetId) return;
+            let posts = getPosts();
+            posts = posts.filter(p => p.id !== deleteTargetId);
+            localStorage.setItem('planet_posts', JSON.stringify(posts));
+            closeModal();
+            renderPosts();
+        }
+
+        function escapeHtml(str) {
+            const d = document.createElement('div');
+            d.textContent = str;
+            return d.innerHTML;
+        }
+
+        (function() {
+            const field = document.getElementById('starfield');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = Math.random() * 2 + 0.5;
+                star.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--dur:${Math.random()*3+1}s;animation-delay:${Math.random()*3}s;`;
+                field.appendChild(star);
+            }
+        })();
+
+        renderPosts();
+    </script>
+</body>
+</html>
