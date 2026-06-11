@@ -825,11 +825,13 @@
         // 加载自定义背景
         function loadCustomBg() {
             var bg = localStorage.getItem('planet_bg');
-            if (bg) {
-                var style = document.createElement('style');
-                style.textContent = '#starfield { background-image: url(' + bg + ') !important; background-color: #000 !important; }';
-                document.head.appendChild(style);
-            }
+            if (!bg) return;
+            var el = document.getElementById('starfield');
+            el.style.background = 'none';
+            el.style.backgroundImage = 'url(' + bg + ')';
+            el.style.backgroundSize = 'cover';
+            el.style.backgroundPosition = 'center';
+            el.style.backgroundColor = '#000';
         }
         loadCustomBg();
 
