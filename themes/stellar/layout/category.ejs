@@ -1,0 +1,11 @@
+<section class="archive-section">
+    <h1 class="page-title">// CATEGORY: <%= page.category %></h1>
+    <div class="archive-list">
+        <% page.posts.forEach(function(post) { %>
+            <div class="archive-item">
+                <span class="archive-date"><%= date(post.date, 'YYYY-MM-DD') %></span>
+                <a href="<%- url_for(post.path) %>" class="archive-title"><%= post.title %></a>
+            </div>
+        <% }) %>
+    </div>
+</section>

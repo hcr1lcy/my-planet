@@ -1,0 +1,10 @@
+<section class="archive-section">
+    <h1 class="page-title">// TAGS</h1>
+    <div class="tag-cloud">
+        <% site.tags.forEach(function(tag) { %>
+            <a href="<%- url_for(tag.path) %>" class="tag-item" style="font-size: <%= 14 + tag.length * 2 %>px;">
+                #<%= tag.name %> <span class="tag-count">(<%= tag.length %>)</span>
+            </a>
+        <% }) %>
+    </div>
+</section>

@@ -1,0 +1,43 @@
+<section class="hero-section">
+    <div class="hero-content">
+        <h1><%= config.title %></h1>
+        <p class="hero-sub"><%= config.subtitle %></p>
+        <p class="hero-desc"><%= config.description %></p>
+    </div>
+    <div class="planet-small"></div>
+</section>
+
+<section class="posts-section">
+    <h2 class="section-title">// LATEST TRANSMISSIONS</h2>
+    <div class="post-grid">
+        <% page.posts.forEach(function(post) { %>
+            <article class="post-card">
+                <div class="post-meta">
+                    <span class="post-date"><%= date(post.date, 'YYYY-MM-DD') %></span>
+                    <% if (post.tags && post.tags.length) { %>
+                        <% post.tags.forEach(function(tag) { %>
+                            <span class="post-tag"><%= tag.name %></span>
+                        <% }) %>
+                    <% } %>
+                </div>
+                <h3 class="post-title">
+                    <a href="<%- url_for(post.path) %>"><%= post.title %></a>
+                </h3>
+                <p class="post-excerpt"><%= strip_html(post.excerpt || post.content).substring(0, 120) %>...</p>
+                <a href="<%- url_for(post.path) %>" class="read-more">READ MORE →</a>
+            </article>
+        <% }) %>
+    </div>
+
+    <% if (page.total > 1) { %>
+    <div class="pagination">
+        <% if (page.prev) { %>
+            <a href="<%- url_for(page.prev_link) %>" class="page-btn">← PREV</a>
+        <% } %>
+        <span class="page-info"><%= page.current %> / <%= page.total %></span>
+        <% if (page.next) { %>
+            <a href="<%- url_for(page.next_link) %>" class="page-btn">NEXT →</a>
+        <% } %>
+    </div>
+    <% } %>
+</section>

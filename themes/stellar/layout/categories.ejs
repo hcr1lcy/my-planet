@@ -1,0 +1,10 @@
+<section class="archive-section">
+    <h1 class="page-title">// CATEGORIES</h1>
+    <div class="tag-cloud">
+        <% site.categories.forEach(function(cat) { %>
+            <a href="<%- url_for(cat.path) %>" class="tag-item" style="font-size: <%= 14 + cat.length * 3 %>px;">
+                <%= cat.name %> <span class="tag-count">(<%= cat.length %>)</span>
+            </a>
+        <% }) %>
+    </div>
+</section>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= page.title ? page.title + ' | ' + config.title : config.title %></title>
+    <meta name="description" content="<%= page.description || config.description %>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+SC:wght@300;400;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div id="starfield"></div>
+    <div class="cursor-glow" id="cursorGlow"></div>
+    <div class="scanline"></div>
+
+    <nav>
+        <a href="/" class="logo"><%= config.title %></a>
+        <ul class="nav-links">
+            <% for (var i in theme.menu) { %>
+                <li><a href="<%- url_for(theme.menu[i]) %>"><%= i %></a></li>
+            <% } %>
+        </ul>
+    </nav>
+
+    <main>
+        <%- body %>
+    </main>
+
+    <footer>
+        <p>&copy; <%= date(new Date(), 'YYYY') %> <%= config.title %> &mdash; <%= config.subtitle %></p>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>
