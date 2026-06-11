@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/nav.css">
     <link rel="stylesheet" href="css/effects.css">
     <link rel="stylesheet" href="css/editor.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <style>
         .auth-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -64,12 +65,123 @@
             font-family: 'Orbitron', sans-serif;
         }
         #editorContainer { display: none; }
+
+        .toolbar {
+            display: flex;
+            gap: 5px;
+            padding: 10px 15px;
+            background: rgba(0,240,255,0.03);
+            border: 1px solid var(--card-border);
+            border-bottom: none;
+            border-radius: 12px 12px 0 0;
+            flex-wrap: wrap;
+        }
+        .toolbar button {
+            padding: 6px 12px;
+            background: transparent;
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        .toolbar button:hover {
+            background: rgba(0,240,255,0.1);
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+        .toolbar .separator {
+            width: 1px;
+            background: var(--card-border);
+            margin: 0 5px;
+        }
+
+        .split-container {
+            display: flex;
+            gap: 0;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            overflow: hidden;
+            min-height: 500px;
+        }
+        .split-container .editor-pane,
+        .split-container .preview-pane {
+            flex: 1;
+            min-width: 0;
+        }
+        .split-container .editor-pane {
+            border-right: 1px solid var(--card-border);
+        }
+        .split-container .content-area {
+            border: none;
+            border-radius: 0;
+            height: 100%;
+        }
+        .split-container .preview-area {
+            display: block;
+            border: none;
+            border-radius: 0;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .mode-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 0;
+            border-bottom: 1px solid var(--card-border);
+        }
+        .mode-tab {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 2px solid transparent;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        .mode-tab:hover { color: var(--text-secondary); }
+        .mode-tab.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+
+        .drop-overlay {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,240,255,0.1);
+            border: 2px dashed var(--cyan);
+            border-radius: 12px;
+            z-index: 10;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            color: var(--cyan);
+            font-size: 1.1rem;
+        }
+        .drop-overlay.active { display: flex; }
+
+        .preview-area pre {
+            background: rgba(0,0,0,0.3) !important;
+            border-radius: 8px;
+            padding: 15px;
+            overflow-x: auto;
+        }
+        .preview-area code {
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+        }
+        .preview-area pre code {
+            background: none !important;
+            padding: 0;
+        }
     </style>
 </head>
 <body>
     <div id="starfield"></div>
 
-    <!-- 认证界面 -->
     <div class="auth-overlay" id="authOverlay">
         <div class="auth-box">
             <h2>// ACCESS</h2>
@@ -80,7 +192,6 @@
         </div>
     </div>
 
-    <!-- 编辑器 -->
     <div id="editorContainer">
         <nav>
             <a href="index.html" class="logo">MY PLANET</a>
@@ -115,13 +226,43 @@
                 <div class="tags-hint">用逗号分隔，例如：tech, life, ai</div>
             </div>
 
-            <div class="editor-tabs">
-                <button class="editor-tab active" onclick="switchTab('edit')">编辑</button>
-                <button class="editor-tab" onclick="switchTab('preview')">预览</button>
+            <div class="toolbar" id="toolbar">
+                <button onclick="insertMd('**', '**')" title="加粗">B</button>
+                <button onclick="insertMd('*', '*')" title="斜体"><i>I</i></button>
+                <button onclick="insertMd('~~', '~~')" title="删除线"><s>S</s></button>
+                <div class="separator"></div>
+                <button onclick="insertLine('# ')" title="标题1">H1</button>
+                <button onclick="insertLine('## ')" title="标题2">H2</button>
+                <button onclick="insertLine('### ')" title="标题3">H3</button>
+                <div class="separator"></div>
+                <button onclick="insertLine('- ')" title="列表">列表</button>
+                <button onclick="insertLine('1. ')" title="有序列表">有序</button>
+                <button onclick="insertLine('> ')" title="引用">引用</button>
+                <div class="separator"></div>
+                <button onclick="insertCode()" title="代码块">代码</button>
+                <button onclick="insertLink()" title="链接">链接</button>
+                <button onclick="insertImage()" title="图片">图片</button>
+                <button onclick="insertLine('---')" title="分割线">分割线</button>
             </div>
 
-            <textarea class="content-area" id="postContent" placeholder="开始写作..."></textarea>
-            <div class="preview-area" id="previewArea"></div>
+            <div style="position: relative;" id="editorWrapper">
+                <div class="drop-overlay" id="dropOverlay">释放以插入图片</div>
+
+                <div class="mode-tabs">
+                    <button class="mode-tab active" onclick="setMode('split')">分屏</button>
+                    <button class="mode-tab" onclick="setMode('edit')">纯编辑</button>
+                    <button class="mode-tab" onclick="setMode('preview')">纯预览</button>
+                </div>
+
+                <div class="split-container" id="splitContainer">
+                    <div class="editor-pane" id="editorPane">
+                        <textarea class="content-area" id="postContent" placeholder="开始写作..."></textarea>
+                    </div>
+                    <div class="preview-pane" id="previewPane">
+                        <div class="preview-area" id="previewArea"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -129,8 +270,9 @@
 
     <footer id="editorFooter" style="display:none;">© 2026 MY PLANET — EDITOR</footer>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="js/core/utils.js"></script>
-    <script src="js/core/markdown.js"></script>
     <script src="js/core/stars.js"></script>
     <script src="js/core/bg.js"></script>
     <script src="js/core/auth.js"></script>
@@ -180,6 +322,160 @@
         document.getElementById('authPassword').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') handleAuth();
         });
+
+        // Markdown 工具栏
+        function insertMd(before, after) {
+            var ta = document.getElementById('postContent');
+            var start = ta.selectionStart;
+            var end = ta.selectionEnd;
+            var selected = ta.value.substring(start, end);
+            var replacement = before + (selected || '文本') + after;
+            ta.value = ta.value.substring(0, start) + replacement + ta.value.substring(end);
+            ta.focus();
+            ta.selectionStart = start + before.length;
+            ta.selectionEnd = start + before.length + (selected || '文本').length;
+            updatePreview();
+        }
+
+        function insertLine(prefix) {
+            var ta = document.getElementById('postContent');
+            var start = ta.selectionStart;
+            var lineStart = ta.value.lastIndexOf('\n', start - 1) + 1;
+            ta.value = ta.value.substring(0, lineStart) + prefix + ta.value.substring(lineStart);
+            ta.focus();
+            ta.selectionStart = ta.selectionEnd = start + prefix.length;
+            updatePreview();
+        }
+
+        function insertCode() {
+            var ta = document.getElementById('postContent');
+            var start = ta.selectionStart;
+            var end = ta.selectionEnd;
+            var selected = ta.value.substring(start, end);
+            var replacement = '```\n' + (selected || '代码') + '\n```';
+            ta.value = ta.value.substring(0, start) + replacement + ta.value.substring(end);
+            ta.focus();
+            updatePreview();
+        }
+
+        function insertLink() {
+            var ta = document.getElementById('postContent');
+            var start = ta.selectionStart;
+            var end = ta.selectionEnd;
+            var selected = ta.value.substring(start, end);
+            var replacement = '[' + (selected || '链接文本') + '](https://example.com)';
+            ta.value = ta.value.substring(0, start) + replacement + ta.value.substring(end);
+            ta.focus();
+            updatePreview();
+        }
+
+        function insertImage() {
+            var url = prompt('请输入图片URL:');
+            if (!url) return;
+            var ta = document.getElementById('postContent');
+            var start = ta.selectionStart;
+            var replacement = '![' + '图片描述' + '](' + url + ')';
+            ta.value = ta.value.substring(0, start) + replacement + ta.value.substring(start);
+            ta.focus();
+            updatePreview();
+        }
+
+        // 分屏模式
+        function setMode(mode) {
+            document.querySelectorAll('.mode-tab').forEach(function(t) { t.classList.remove('active'); });
+            event.target.classList.add('active');
+
+            var editorPane = document.getElementById('editorPane');
+            var previewPane = document.getElementById('previewPane');
+            var splitContainer = document.getElementById('splitContainer');
+
+            if (mode === 'split') {
+                editorPane.style.display = 'block';
+                previewPane.style.display = 'block';
+                splitContainer.style.flexDirection = 'row';
+            } else if (mode === 'edit') {
+                editorPane.style.display = 'block';
+                previewPane.style.display = 'none';
+            } else if (mode === 'preview') {
+                editorPane.style.display = 'none';
+                previewPane.style.display = 'block';
+                updatePreview();
+            }
+        }
+
+        // 实时预览
+        function updatePreview() {
+            var content = document.getElementById('postContent').value;
+            var preview = document.getElementById('previewArea');
+            if (typeof marked !== 'undefined') {
+                preview.innerHTML = marked.parse(content);
+                preview.querySelectorAll('pre code').forEach(function(block) {
+                    hljs.highlightElement(block);
+                });
+            } else {
+                preview.innerHTML = markdownToHtml(content);
+            }
+        }
+
+        document.getElementById('postContent').addEventListener('input', updatePreview);
+
+        // 同步滚动
+        document.getElementById('postContent').addEventListener('scroll', function() {
+            var preview = document.getElementById('previewArea');
+            var textarea = this;
+            var ratio = textarea.scrollTop / (textarea.scrollHeight - textarea.clientHeight);
+            preview.scrollTop = ratio * (preview.scrollHeight - preview.clientHeight);
+        });
+
+        // 图片拖拽/粘贴
+        var editorWrapper = document.getElementById('editorWrapper');
+        var dropOverlay = document.getElementById('dropOverlay');
+
+        editorWrapper.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            dropOverlay.classList.add('active');
+        });
+
+        editorWrapper.addEventListener('dragleave', function(e) {
+            dropOverlay.classList.remove('active');
+        });
+
+        editorWrapper.addEventListener('drop', function(e) {
+            e.preventDefault();
+            dropOverlay.classList.remove('active');
+            var files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type.startsWith('image/')) {
+                handleImageFile(files[0]);
+            }
+        });
+
+        document.getElementById('postContent').addEventListener('paste', function(e) {
+            var items = e.clipboardData.items;
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].type.startsWith('image/')) {
+                    e.preventDefault();
+                    handleImageFile(items[i].getAsFile());
+                    break;
+                }
+            }
+        });
+
+        function handleImageFile(file) {
+            if (file.size > 2 * 1024 * 1024) {
+                showToast('图片不能超过 2MB');
+                return;
+            }
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                var ta = document.getElementById('postContent');
+                var start = ta.selectionStart;
+                var md = '\n![' + file.name + '](' + ev.target.result + ')\n';
+                ta.value = ta.value.substring(0, start) + md + ta.value.substring(start);
+                updatePreview();
+                showToast('图片已插入 (' + Math.round(file.size / 1024) + 'KB)');
+            };
+            reader.readAsDataURL(file);
+        }
     </script>
 </body>
 </html>
