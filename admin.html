@@ -315,7 +315,7 @@
             const preview = document.getElementById('bgPreview');
             const urlInput = document.getElementById('bgUrl');
             if (bg) {
-                preview.style.backgroundImage = `url(${bg})`;
+                preview.style.background = `url(${bg}) center/cover no-repeat`;
                 preview.innerHTML = '';
                 urlInput.value = bg.startsWith('data:') ? '(已上传本地图片)' : bg;
             }
@@ -341,7 +341,7 @@
 
         function resetBg() {
             localStorage.removeItem('planet_bg');
-            document.getElementById('bgPreview').style.backgroundImage = 'none';
+            document.getElementById('bgPreview').style.background = 'none';
             document.getElementById('bgPreview').innerHTML = '<span style="color: rgba(255,255,255,0.3); font-size: 0.85rem;">当前背景预览</span>';
             document.getElementById('bgUrl').value = '';
         }

@@ -827,7 +827,7 @@
             const bg = localStorage.getItem('planet_bg');
             const starfield = document.getElementById('starfield');
             if (bg) {
-                starfield.style.backgroundImage = `url(${bg})`;
+                starfield.style.background = `url(${bg}) center/cover no-repeat #000`;
                 starfield.classList.add('custom-bg');
             }
         }
