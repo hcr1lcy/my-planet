@@ -12,7 +12,7 @@ language: zh-CN
 timezone: Asia/Shanghai
 
 # URL
-url: https://hcr1lcy.gitee.io/my-planet
+url: https://huang-chapai.gitee.io
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 pretty_urls:
