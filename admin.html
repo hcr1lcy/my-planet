@@ -323,13 +323,14 @@
                 preview.style.backgroundPosition = 'center';
                 preview.innerHTML = '';
                 urlInput.value = bg.startsWith('data:') ? '(已上传本地图片)' : bg;
+                urlInput.disabled = bg.startsWith('data:');
                 console.log('[BG] 预览已更新');
             }
         }
 
         function applyBgUrl() {
             var url = document.getElementById('bgUrl').value.trim();
-            if (!url) return;
+            if (!url || url === '(已上传本地图片)') return;
             console.log('[BG] applyBgUrl:', url.substring(0, 50));
             try {
                 localStorage.setItem('planet_bg', url);
