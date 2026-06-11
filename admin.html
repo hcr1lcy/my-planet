@@ -306,7 +306,8 @@
             posts = posts.filter(p => p.id !== deleteTargetId);
             localStorage.setItem('planet_posts', JSON.stringify(posts));
             closeModal();
-        renderPosts();
+            renderPosts();
+        }
 
         // 背景设置
         function loadBgSettings() {
