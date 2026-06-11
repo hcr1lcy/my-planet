@@ -313,33 +313,39 @@
 
         // 背景设置
         function loadBgSettings() {
-            const bg = localStorage.getItem('planet_bg');
-            const preview = document.getElementById('bgPreview');
-            const urlInput = document.getElementById('bgUrl');
+            var bg = localStorage.getItem('planet_bg');
+            console.log('[BG] loadBgSettings:', bg ? '有值 (长度:' + bg.length + ')' : '无值');
+            var preview = document.getElementById('bgPreview');
+            var urlInput = document.getElementById('bgUrl');
             if (bg) {
                 preview.style.backgroundImage = 'url(' + bg + ')';
                 preview.style.backgroundSize = 'cover';
                 preview.style.backgroundPosition = 'center';
                 preview.innerHTML = '';
                 urlInput.value = bg.startsWith('data:') ? '(已上传本地图片)' : bg;
+                console.log('[BG] 预览已更新');
             }
         }
 
         function applyBgUrl() {
-            const url = document.getElementById('bgUrl').value.trim();
+            var url = document.getElementById('bgUrl').value.trim();
             if (!url) return;
+            console.log('[BG] applyBgUrl:', url.substring(0, 50));
             try {
                 localStorage.setItem('planet_bg', url);
+                console.log('[BG] localStorage 写入成功, 长度:', url.length);
                 loadBgSettings();
                 showToast('背景已应用');
             } catch (err) {
+                console.error('[BG] 写入失败:', err);
                 alert('保存失败：' + err.message);
             }
         }
 
         function handleBgFile(e) {
-            const file = e.target.files[0];
-            if (!file) return;
+            var file = e.target.files[0];
+            if (!file) { console.log('[BG] 未选择文件'); return; }
+            console.log('[BG] 选择文件:', file.name, '大小:', file.size, '类型:', file.type);
             if (!file.type.startsWith('image/')) {
                 alert('请选择图片文件');
                 return;
@@ -348,13 +354,17 @@
                 alert('图片不能超过 1.5MB');
                 return;
             }
-            const reader = new FileReader();
+            var reader = new FileReader();
             reader.onload = function(ev) {
+                console.log('[BG] FileReader 完成, dataURL 长度:', ev.target.result.length);
                 try {
                     localStorage.setItem('planet_bg', ev.target.result);
+                    var verify = localStorage.getItem('planet_bg');
+                    console.log('[BG] 写入验证:', verify ? '成功 (长度:' + verify.length + ')' : '失败');
                     loadBgSettings();
                     showToast('背景已保存 (' + Math.round(file.size / 1024) + 'KB)');
                 } catch (err) {
+                    console.error('[BG] 保存失败:', err);
                     alert('保存失败，图片可能太大：' + err.message);
                 }
             };

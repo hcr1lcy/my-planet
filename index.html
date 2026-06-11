@@ -824,13 +824,17 @@
 
         // 加载自定义背景
         function loadCustomBg() {
+            console.log('[BG] loadCustomBg 开始');
             var bg = localStorage.getItem('planet_bg');
-            if (!bg) return;
+            console.log('[BG] localStorage 值:', bg ? bg.substring(0, 50) + '... (长度:' + bg.length + ')' : 'null');
+            if (!bg) { console.log('[BG] 无自定义背景，跳过'); return; }
             var el = document.getElementById('starfield');
+            console.log('[BG] starfield 元素:', el ? '找到' : '未找到');
             el.setAttribute('style',
                 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:-2;' +
                 'background:url(' + bg + ') center/cover no-repeat #000;'
             );
+            console.log('[BG] 背景已设置');
         }
         loadCustomBg();
 
