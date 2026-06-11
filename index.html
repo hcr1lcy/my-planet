@@ -827,11 +827,10 @@
             var bg = localStorage.getItem('planet_bg');
             if (!bg) return;
             var el = document.getElementById('starfield');
-            el.style.background = 'none';
-            el.style.backgroundImage = 'url(' + bg + ')';
-            el.style.backgroundSize = 'cover';
-            el.style.backgroundPosition = 'center';
-            el.style.backgroundColor = '#000';
+            el.setAttribute('style',
+                'position:fixed;top:0;left:0;width:100%;height:100%;z-index:-2;' +
+                'background:url(' + bg + ') center/cover no-repeat #000;'
+            );
         }
         loadCustomBg();
 
