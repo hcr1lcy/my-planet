@@ -1,0 +1,89 @@
+:root {
+  --cyan: #00f0ff;
+  --purple: #a855f7;
+  --pink: #ff006e;
+  --bg-dark: #0a0e2a;
+  --bg-black: #000;
+  --text-primary: #fff;
+  --text-secondary: rgba(255, 255, 255, 0.6);
+  --text-muted: rgba(255, 255, 255, 0.3);
+  --card-bg: rgba(0, 240, 255, 0.03);
+  --card-border: rgba(0, 240, 255, 0.1);
+  --card-radius: 16px;
+}
+
+[data-theme="light"] {
+  --cyan: #0099cc;
+  --purple: #7c3aed;
+  --pink: #db2777;
+  --bg-dark: #f0f4f8;
+  --bg-black: #ffffff;
+  --text-primary: #1a1a2e;
+  --text-secondary: rgba(26, 26, 46, 0.7);
+  --text-muted: rgba(26, 26, 46, 0.4);
+  --card-bg: rgba(0, 153, 204, 0.05);
+  --card-border: rgba(0, 153, 204, 0.15);
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+SC:wght@300;400;700&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Noto Sans SC', sans-serif;
+  background: var(--bg-black);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+a { color: var(--cyan); text-decoration: none; }
+
+.section-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.8rem;
+  text-align: center;
+  margin-bottom: 60px;
+  color: var(--cyan);
+  position: relative;
+}
+
+.section-title::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--cyan), var(--purple));
+  margin: 15px auto 0;
+}
+
+footer {
+  text-align: center;
+  padding: 40px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+}
+
+.toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  padding: 14px 24px;
+  background: rgba(0,255,136,0.15);
+  border: 1px solid rgba(0,255,136,0.4);
+  border-radius: 10px;
+  color: #00ff88;
+  font-size: 0.85rem;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.4s;
+  z-index: 999;
+}
+
+.toast.show { transform: translateY(0); opacity: 1; }
+
+@media (max-width: 768px) {
+  .section-title { font-size: 1.4rem; }
+}

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>My Planet - Test Runner</title>
+  <style>
+    body { font-family: monospace; background: #111; color: #fff; padding: 20px; }
+    .suite { margin: 15px 0; padding: 10px; border: 1px solid #333; border-radius: 8px; }
+    .suite-name { color: #00f0ff; font-size: 1.1rem; margin-bottom: 10px; }
+    .test { padding: 5px 10px; margin: 3px 0; border-radius: 4px; }
+    .pass { background: rgba(0, 255, 136, 0.1); color: #00ff88; }
+    .fail { background: rgba(255, 68, 102, 0.1); color: #ff4466; }
+    .summary { margin-top: 20px; font-size: 1.2rem; }
+    .summary .total { color: #00f0ff; }
+    .summary .passed { color: #00ff88; }
+    .summary .failed { color: #ff4466; }
+  </style>
+</head>
+<body>
+  <h1 style="color: #00f0ff;">My Planet Test Runner</h1>
+  <div id="results"></div>
+  <div class="summary" id="summary"></div>
+
+  <script>
+    var results = { total: 0, passed: 0, failed: 0, suites: [] };
+    var currentSuite = null;
+
+    function describe(name, fn) {
+      currentSuite = { name: name, tests: [] };
+      results.suites.push(currentSuite);
+      fn();
+      currentSuite = null;
+    }
+
+    function it(name, fn) {
+      results.total++;
+      try {
+        fn();
+        results.passed++;
+        currentSuite.tests.push({ name: name, pass: true });
+      } catch (e) {
+        results.failed++;
+        currentSuite.tests.push({ name: name, pass: false, error: e.message });
+      }
+    }
+
+    function expect(val) {
+      return {
+        toBe: function(expected) {
+          if (val !== expected) throw new Error('Expected ' + JSON.stringify(expected) + ' but got ' + JSON.stringify(val));
+        },
+        toEqual: function(expected) {
+          if (JSON.stringify(val) !== JSON.stringify(expected)) throw new Error('Expected ' + JSON.stringify(expected) + ' but got ' + JSON.stringify(val));
+        },
+        toBeTruthy: function() {
+          if (!val) throw new Error('Expected truthy but got ' + JSON.stringify(val));
+        },
+        toContain: function(expected) {
+          if (typeof val === 'string') {
+            if (!val.includes(expected)) throw new Error('Expected "' + val + '" to contain "' + expected + '"');
+          } else if (Array.isArray(val)) {
+            if (!val.includes(expected)) throw new Error('Expected array to contain ' + JSON.stringify(expected));
+          }
+        },
+        toBeGreaterThan: function(expected) {
+          if (val <= expected) throw new Error('Expected ' + val + ' > ' + expected);
+        },
+        not: {
+          toContain: function(expected) {
+            if (typeof val === 'string') {
+              if (val.includes(expected)) throw new Error('Expected "' + val + '" not to contain "' + expected + '"');
+            }
+          }
+        }
+      };
+    }
+
+    function renderResults() {
+      var html = '';
+      results.suites.forEach(function(suite) {
+        html += '<div class="suite"><div class="suite-name">' + suite.name + '</div>';
+        suite.tests.forEach(function(test) {
+          var cls = test.pass ? 'pass' : 'fail';
+          var icon = test.pass ? '\u2713' : '\u2717';
+          var extra = test.error ? ' <span style="color:#ff4466;">(' + test.error + ')</span>' : '';
+          html += '<div class="test ' + cls + '">' + icon + ' ' + test.name + extra + '</div>';
+        });
+        html += '</div>';
+      });
+      document.getElementById('results').innerHTML = html;
+
+      var summaryHtml = 'Total: <span class="total">' + results.total + '</span> | ' +
+        'Passed: <span class="passed">' + results.passed + '</span> | ' +
+        'Failed: <span class="failed">' + results.failed + '</span>';
+      document.getElementById('summary').innerHTML = summaryHtml;
+    }
+
+    function runAllTests() {
+      renderResults();
+      if (results.failed > 0) {
+        document.title = 'Tests FAILED: ' + results.failed;
+      } else {
+        document.title = 'Tests PASSED: ' + results.passed + '/' + results.total;
+      }
+    }
+  </script>
+
+  <script src="../js/core/utils.js"></script>
+  <script src="../js/core/markdown.js"></script>
+  <script src="../js/core/stars.js"></script>
+  <script src="../js/core/bg.js"></script>
+  <script src="../js/core/storage.js"></script>
+  <script src="../js/core/auth.js"></script>
+
+  <script src="tests-core.js"></script>
+  <script src="tests-e2e.js"></script>
+
+  <script>runAllTests();</script>
+</body>
+</html>
