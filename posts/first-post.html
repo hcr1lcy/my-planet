@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星际航行的第一步：从零搭建个人星球</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+SC:wght@300;400;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        #starfield {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -2;
+            background: radial-gradient(ellipse at 20% 50%, #0a0e2a 0%, #000 70%);
+        }
+
+        .star {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle var(--dur) ease-in-out infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.2; }
+            100% { opacity: 1; }
+        }
+
+        nav {
+            position: fixed;
+            top: 0; width: 100%;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #00f0ff, #a855f7, #ff006e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 3px;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0; width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #00f0ff, #a855f7);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: #00f0ff;
+        }
+
+        .nav-links a:hover::after, .nav-links a.active::after {
+            width: 100%;
+        }
+
+        /* 文章头部 */
+        .article-header {
+            padding: 140px 20px 60px;
+            max-width: 750px;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255,255,255,0.4);
+            text-decoration: none;
+            font-size: 0.85rem;
+            margin-bottom: 30px;
+            transition: color 0.3s;
+        }
+
+        .back-link:hover {
+            color: #00f0ff;
+        }
+
+        .article-meta {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .article-date {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            color: #a855f7;
+        }
+
+        .article-tags {
+            display: flex;
+            gap: 8px;
+        }
+
+        .article-tag {
+            padding: 4px 12px;
+            background: rgba(0,240,255,0.08);
+            border: 1px solid rgba(0,240,255,0.15);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: rgba(0,255,240,0.7);
+        }
+
+        .article-read-time {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.3);
+            margin-left: auto;
+        }
+
+        .article-header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, #00f0ff, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.4;
+            margin-bottom: 20px;
+        }
+
+        .article-header .subtitle {
+            color: rgba(255,255,255,0.5);
+            font-size: 1.05rem;
+            line-height: 1.8;
+        }
+
+        /* 文章正文 */
+        .article-content {
+            max-width: 750px;
+            margin: 0 auto;
+            padding: 0 20px 100px;
+            line-height: 2;
+            color: rgba(255,255,255,0.75);
+        }
+
+        .article-content h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            color: #00f0ff;
+            margin: 50px 0 20px;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .article-content h2::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 5px;
+            width: 3px;
+            height: calc(100% - 10px);
+            background: linear-gradient(180deg, #00f0ff, #a855f7);
+            border-radius: 2px;
+        }
+
+        .article-content h3 {
+            font-size: 1.15rem;
+            color: #a855f7;
+            margin: 35px 0 15px;
+        }
+
+        .article-content p {
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .article-content a {
+            color: #00f0ff;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(0,240,255,0.3);
+            transition: all 0.3s;
+        }
+
+        .article-content a:hover {
+            border-bottom-color: #00f0ff;
+        }
+
+        .article-content code {
+            background: rgba(0,240,255,0.08);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #00f0ff;
+        }
+
+        .article-content pre {
+            background: rgba(0,240,255,0.03);
+            border: 1px solid rgba(0,240,255,0.1);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+            overflow-x: auto;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .article-content pre code {
+            background: none;
+            padding: 0;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .article-content blockquote {
+            border-left: 3px solid #a855f7;
+            padding: 15px 25px;
+            margin: 25px 0;
+            background: rgba(168,85,247,0.05);
+            border-radius: 0 12px 12px 0;
+            color: rgba(255,255,255,0.6);
+            font-style: italic;
+        }
+
+        .article-content ul, .article-content ol {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+
+        .article-content li {
+            margin-bottom: 8px;
+        }
+
+        .article-content img {
+            width: 100%;
+            border-radius: 12px;
+            margin: 25px 0;
+            border: 1px solid rgba(0,240,255,0.1);
+        }
+
+        /* 分隔线 */
+        .article-content hr {
+            border: none;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0,240,255,0.3), transparent);
+            margin: 50px 0;
+        }
+
+        /* 上一篇/下一篇 */
+        .post-nav {
+            max-width: 750px;
+            margin: 0 auto;
+            padding: 0 20px 80px;
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .post-nav a {
+            flex: 1;
+            padding: 25px;
+            background: rgba(0,240,255,0.03);
+            border: 1px solid rgba(0,240,255,0.1);
+            border-radius: 12px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .post-nav a:hover {
+            border-color: rgba(0,240,255,0.3);
+            background: rgba(0,240,255,0.06);
+        }
+
+        .post-nav .label {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.3);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .post-nav .title {
+            color: #00f0ff;
+            font-size: 0.9rem;
+        }
+
+        .post-nav .next {
+            text-align: right;
+        }
+
+        .cursor-glow {
+            position: fixed;
+            width: 300px; height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0,240,255,0.06) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: -1;
+            transform: translate(-50%, -50%);
+            transition: left 0.15s ease, top 0.15s ease;
+        }
+
+        .scanline {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 999;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.3);
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+        }
+
+        @media (max-width: 768px) {
+            nav { padding: 15px 20px; }
+            .nav-links { gap: 15px; }
+            .nav-links a { font-size: 0.75rem; }
+            .article-header h1 { font-size: 1.5rem; }
+            .article-header { padding: 120px 20px 40px; }
+            .post-nav { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div id="starfield"></div>
+    <div class="cursor-glow" id="cursorGlow"></div>
+    <div class="scanline"></div>
+
+    <nav>
+        <a href="../index.html" class="logo">MY PLANET</a>
+        <ul class="nav-links">
+            <li><a href="../index.html#home">首页</a></li>
+            <li><a href="../index.html#about">关于</a></li>
+            <li><a href="../index.html#skills">技能</a></li>
+            <li><a href="../blog.html" class="active">日志</a></li>
+            <li><a href="../index.html#contact">联系</a></li>
+        </ul>
+    </nav>
+
+    <article class="article-header">
+        <a href="../blog.html" class="back-link">← 返回日志列表</a>
+        <div class="article-meta">
+            <span class="article-date">2026.06.11</span>
+            <div class="article-tags">
+                <span class="article-tag">TECH</span>
+                <span class="article-tag">DESIGN</span>
+            </div>
+            <span class="article-read-time">⏱ 5 min read</span>
+        </div>
+        <h1>星际航行的第一步：从零搭建个人星球</h1>
+        <p class="subtitle">在数字宇宙中创建一颗属于自己的星球需要什么？本文记录了从构思到实现的完整过程。</p>
+    </article>
+
+    <div class="article-content">
+        <h2>起源</h2>
+        <p>每个开发者都有一个梦想：拥有自己的数字领地。不是社交媒体上被算法支配的页面，而是一个完全由自己掌控的、独一无二的空间。</p>
+        <p>这个想法在我脑海中酝酿了很久。直到某天深夜，当我仰望星空时，一个念头闪过——为什么不创造一颗属于自己的星球呢？</p>
+
+        <blockquote>
+            "宇宙很大，但属于你的那一颗星，值得你亲手去点亮。"
+        </blockquote>
+
+        <h2>设计理念</h2>
+        <p>在开始编码之前，我花了大量时间思考设计方向。最终确定了几个核心原则：</p>
+        <ul>
+            <li><strong>沉浸感</strong> — 用户应该感觉自己真的在太空中</li>
+            <li><strong>极简主义</strong> — 内容为王，装饰服务于内容</li>
+            <li><strong>交互反馈</strong> — 每一次操作都应该有视觉回应</li>
+            <li><strong>性能优先</strong> — 流畅的体验比华丽的效果更重要</li>
+        </ul>
+
+        <h2>技术选型</h2>
+        <p>我选择了最纯粹的方式：<code>HTML + CSS + JavaScript</code>，不依赖任何框架。原因很简单——这是一次回归本源的旅程。</p>
+
+        <h3>星空背景</h3>
+        <p>使用 CSS 动画生成200颗随机分布的星星，每颗星都有独立的闪烁周期。通过 <code>--dur</code> CSS变量控制动画时长，实现自然的随机效果。</p>
+
+        <pre><code>function createStars() {
+    for (let i = 0; i < 200; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        const size = Math.random() * 2.5 + 0.5;
+        star.style.cssText = `
+            width: ${size}px; height: ${size}px;
+            left: ${Math.random() * 100}%;
+            --dur: ${Math.random() * 3 + 1}s;
+        `;
+        field.appendChild(star);
+    }
+}</code></pre>
+
+        <h3>星球动画</h3>
+        <p>核心的星球使用多层径向渐变模拟大气层和地表纹理。星环通过 <code>rotateX(75deg)</code> 实现倾斜效果，配合旋转动画产生立体感。</p>
+
+        <h2>开发过程</h2>
+        <p>整个项目从构思到完成大约花了三个晚上。第一个晚上搭建基础框架，第二个晚上打磨动画效果，第三个晚上优化细节和响应式适配。</p>
+
+        <p>过程中遇到的最大挑战是性能优化。200颗星星的动画在低端设备上可能会卡顿，最终通过降低 <code>will-change</code> 层级和使用 <code>transform</code> 替代 <code>top/left</code> 解决。</p>
+
+        <h2>未来展望</h2>
+        <p>这只是开始。接下来计划添加：</p>
+        <ol>
+            <li>更多的星球类型和自定义选项</li>
+            <li>粒子系统模拟星尘效果</li>
+            <li>基于 Three.js 的3D交互模式</li>
+            <li>访客轨迹记录功能</li>
+        </ol>
+
+        <hr>
+
+        <p>每一次点击"部署"按钮，都像是向宇宙发射一颗新星。愿这个小小的星球，能为路过的人带来一丝光亮。</p>
+    </div>
+
+    <div class="post-nav">
+        <a href="ai-revolution.html">
+            <div class="label">← 上一篇</div>
+            <div class="title">AI 时代的编程</div>
+        </a>
+        <a href="../blog.html" class="next">
+            <div class="label">下一篇 →</div>
+            <div class="title">返回日志列表</div>
+        </a>
+    </div>
+
+    <footer>
+        <p>© 2026 MY PLANET — ALL RIGHTS RESERVED</p>
+    </footer>
+
+    <script>
+        (function() {
+            const field = document.getElementById('starfield');
+            for (let i = 0; i < 120; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = Math.random() * 2 + 0.5;
+                star.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--dur:${Math.random()*3+1}s;animation-delay:${Math.random()*3}s;`;
+                field.appendChild(star);
+            }
+        })();
+
+        const glow = document.getElementById('cursorGlow');
+        document.addEventListener('mousemove', e => {
+            glow.style.left = e.clientX + 'px';
+            glow.style.top = e.clientY + 'px';
+        });
+    </script>
+</body>
+</html>
