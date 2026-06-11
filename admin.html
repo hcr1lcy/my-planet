@@ -222,7 +222,7 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">或上传本地图片</label>
-                        <input type="file" id="bgFile" accept="image/*" style="display:none;" onchange="handleBgFile(event)">
+                        <input type="file" id="bgFile" accept="image/*" style="display:none;">
                         <button class="btn btn-draft" onclick="document.getElementById('bgFile').click()">选择文件</button>
                     </div>
                     <div style="display: flex; gap: 10px; margin-top: 10px;">
@@ -331,13 +331,27 @@
         function handleBgFile(event) {
             const file = event.target.files[0];
             if (!file) return;
+            if (file.size > 2 * 1024 * 1024) {
+                alert('图片不能超过 2MB');
+                return;
+            }
             const reader = new FileReader();
             reader.onload = function(e) {
-                localStorage.setItem('planet_bg', e.target.result);
-                loadBgSettings();
+                try {
+                    localStorage.setItem('planet_bg', e.target.result);
+                    loadBgSettings();
+                } catch (err) {
+                    alert('保存失败：' + err.message);
+                }
+            };
+            reader.onerror = function() {
+                alert('读取文件失败');
             };
             reader.readAsDataURL(file);
         }
+
+        // 绑定文件选择事件
+        document.getElementById('bgFile').addEventListener('change', handleBgFile);
 
         function resetBg() {
             localStorage.removeItem('planet_bg');
