@@ -247,6 +247,8 @@
 
     <footer>© 2026 MY PLANET — CONTROL CENTER</footer>
 
+    <div id="toast" style="position:fixed;bottom:30px;right:30px;padding:14px 24px;background:rgba(0,255,136,0.15);border:1px solid rgba(0,255,136,0.4);border-radius:10px;color:#00ff88;font-size:0.85rem;transform:translateY(100px);opacity:0;transition:all 0.4s;z-index:999;"></div>
+
     <script>
         let deleteTargetId = null;
 
@@ -315,7 +317,9 @@
             const preview = document.getElementById('bgPreview');
             const urlInput = document.getElementById('bgUrl');
             if (bg) {
-                preview.style.background = `url(${bg}) center/cover no-repeat`;
+                preview.style.backgroundImage = 'url(' + bg + ')';
+                preview.style.backgroundSize = 'cover';
+                preview.style.backgroundPosition = 'center';
                 preview.innerHTML = '';
                 urlInput.value = bg.startsWith('data:') ? '(已上传本地图片)' : bg;
             }
@@ -324,42 +328,56 @@
         function applyBgUrl() {
             const url = document.getElementById('bgUrl').value.trim();
             if (!url) return;
-            localStorage.setItem('planet_bg', url);
-            loadBgSettings();
+            try {
+                localStorage.setItem('planet_bg', url);
+                loadBgSettings();
+                showToast('背景已应用');
+            } catch (err) {
+                alert('保存失败：' + err.message);
+            }
         }
 
-        function handleBgFile(event) {
-            const file = event.target.files[0];
+        function handleBgFile(e) {
+            const file = e.target.files[0];
             if (!file) return;
-            if (file.size > 2 * 1024 * 1024) {
-                alert('图片不能超过 2MB');
+            if (!file.type.startsWith('image/')) {
+                alert('请选择图片文件');
+                return;
+            }
+            if (file.size > 1.5 * 1024 * 1024) {
+                alert('图片不能超过 1.5MB');
                 return;
             }
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function(ev) {
                 try {
-                    localStorage.setItem('planet_bg', e.target.result);
+                    localStorage.setItem('planet_bg', ev.target.result);
                     loadBgSettings();
+                    showToast('背景已保存 (' + Math.round(file.size / 1024) + 'KB)');
                 } catch (err) {
-                    alert('保存失败：' + err.message);
+                    alert('保存失败，图片可能太大：' + err.message);
                 }
-            };
-            reader.onerror = function() {
-                alert('读取文件失败');
             };
             reader.readAsDataURL(file);
         }
 
-        // 绑定文件选择事件
-        document.getElementById('bgFile').addEventListener('change', handleBgFile);
-
         function resetBg() {
             localStorage.removeItem('planet_bg');
-            document.getElementById('bgPreview').style.background = 'none';
+            document.getElementById('bgPreview').style.backgroundImage = 'none';
             document.getElementById('bgPreview').innerHTML = '<span style="color: rgba(255,255,255,0.3); font-size: 0.85rem;">当前背景预览</span>';
             document.getElementById('bgUrl').value = '';
+            showToast('已恢复默认背景');
         }
 
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            if (!t) return;
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2500);
+        }
+
+        document.getElementById('bgFile').addEventListener('change', handleBgFile);
         loadBgSettings();
 
         function escapeHtml(str) {
