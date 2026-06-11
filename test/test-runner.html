@@ -66,6 +66,9 @@
           if (val <= expected) throw new Error('Expected ' + val + ' > ' + expected);
         },
         not: {
+          toBe: function(expected) {
+            if (val === expected) throw new Error('Expected not ' + JSON.stringify(expected));
+          },
           toContain: function(expected) {
             if (typeof val === 'string') {
               if (val.includes(expected)) throw new Error('Expected "' + val + '" not to contain "' + expected + '"');
@@ -112,6 +115,7 @@
   <script src="../js/core/storage.js"></script>
   <script src="../js/core/auth.js"></script>
   <script src="../js/core/analytics.js"></script>
+  <script src="../js/blog.js"></script>
 
   <script src="tests-core.js"></script>
   <script src="tests-blog.js"></script>
