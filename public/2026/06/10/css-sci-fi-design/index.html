@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用 CSS 打造科幻风格界面 | 星际日志</title>
+    <meta name="description" content="个人科幻风格博客">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+SC:wght@300;400;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 8.1.2"></head>
+<body>
+    <div id="starfield"></div>
+    <div class="cursor-glow" id="cursorGlow"></div>
+    <div class="scanline"></div>
+
+    <nav>
+        <a href="/" class="logo">星际日志</a>
+        <ul class="nav-links">
+            
+                <li><a href="/">首页</a></li>
+            
+                <li><a href="/archives">归档</a></li>
+            
+                <li><a href="/tags">标签</a></li>
+            
+                <li><a href="/about">关于</a></li>
+            
+        </ul>
+    </nav>
+
+    <main>
+        <article class="post-full">
+    <header class="post-header">
+        <h1>用 CSS 打造科幻风格界面</h1>
+        <div class="post-meta">
+            <span>2026-06-10 00:00</span>
+            
+                <span>更新于 2026-06-11 19:31</span>
+            
+        </div>
+        
+            <div class="post-tags">
+                
+                    <a href="/tags/%E5%89%8D%E7%AB%AF/" class="tag">#前端</a>
+                
+                    <a href="/tags/CSS/" class="tag">#CSS</a>
+                
+                    <a href="/tags/%E6%95%99%E7%A8%8B/" class="tag">#教程</a>
+                
+            </div>
+        
+        
+            <div class="post-categories">
+                
+                    <a href="/categories/%E6%8A%80%E6%9C%AF/" class="category">技术</a>
+                
+            </div>
+        
+    </header>
+
+    <div class="post-content">
+        <p>科幻风格的界面设计并不复杂，关键在于几个核心元素的组合。</p>
+<h2 id="核心元素"><a href="#核心元素" class="headerlink" title="核心元素"></a>核心元素</h2><h3 id="1-深色背景-渐变"><a href="#1-深色背景-渐变" class="headerlink" title="1. 深色背景 + 渐变"></a>1. 深色背景 + 渐变</h3><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">body</span> &#123;</span><br><span class="line">    <span class="attribute">background</span>: <span class="built_in">radial-gradient</span>(ellipse at <span class="number">20%</span> <span class="number">50%</span>, <span class="number">#0a0e2a</span> <span class="number">0%</span>, <span class="number">#000</span> <span class="number">70%</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-霓虹色发光效果"><a href="#2-霓虹色发光效果" class="headerlink" title="2. 霓虹色发光效果"></a>2. 霓虹色发光效果</h3><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.neon</span> &#123;</span><br><span class="line">    <span class="attribute">color</span>: <span class="number">#00f0ff</span>;</span><br><span class="line">    <span class="attribute">text-shadow</span>: <span class="number">0</span> <span class="number">0</span> <span class="number">10px</span> <span class="built_in">rgba</span>(<span class="number">0</span>,<span class="number">240</span>,<span class="number">255</span>,<span class="number">0.5</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-扫描线覆盖层"><a href="#3-扫描线覆盖层" class="headerlink" title="3. 扫描线覆盖层"></a>3. 扫描线覆盖层</h3><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.scanline</span> &#123;</span><br><span class="line">    <span class="attribute">background</span>: <span class="built_in">repeating-linear-gradient</span>(</span><br><span class="line">        <span class="number">0deg</span>, transparent, transparent <span class="number">2px</span>,</span><br><span class="line">        <span class="built_in">rgba</span>(<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0.03</span>) <span class="number">2px</span>, <span class="built_in">rgba</span>(<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0.03</span>) <span class="number">4px</span></span><br><span class="line">    );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-卡片悬浮效果"><a href="#4-卡片悬浮效果" class="headerlink" title="4. 卡片悬浮效果"></a>4. 卡片悬浮效果</h3><p>利用 <code>perspective</code> 和 <code>rotateY/rotateX</code> 实现 3D 倾斜。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>科幻风格的本质是<strong>对比</strong> — 黑暗中的光芒，冷酷中的温度。</p>
+
+    </div>
+
+    <nav class="post-nav">
+        
+            <a href="/2026/06/11/hello-world/" class="nav-prev">← 欢迎来到我的星球</a>
+        
+        
+    </nav>
+</article>
+
+    </main>
+
+    <footer>
+        <p>&copy; 2026 星际日志 &mdash; Explore the Digital Universe</p>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>
