@@ -42,16 +42,16 @@ describe('E2E: 用户完整创作流程', function() {
 
   it('搜索过滤正常', function() {
     var posts = [
-      { title: 'JavaScript教程', tags: ['tech'] },
-      { title: '生活随笔', tags: ['life'] },
-      { title: 'AI革命', tags: ['tech', 'ai'] }
+      { title: 'JavaScript', tags: ['tech'] },
+      { title: 'Python', tags: ['life'] },
+      { title: 'AI', tags: ['tech', 'ai'] }
     ];
-    var query = 'js';
+    var query = 'java';
     var filtered = posts.filter(function(p) {
       return p.title.toLowerCase().includes(query.toLowerCase());
     });
     expect(filtered.length).toBe(1);
-    expect(filtered[0].title).toBe('JavaScript教程');
+    expect(filtered[0].title).toBe('JavaScript');
   });
 
   it('标签筛选正常', function() {

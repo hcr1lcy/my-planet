@@ -47,7 +47,7 @@ function switchTab(tab) {
   }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+function initEditor() {
   var params = new URLSearchParams(window.location.search);
   var editId = params.get('id');
 
@@ -64,4 +64,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
   createStarfield(document.getElementById('starfield'), 80);
   loadCustomBg();
-});
+}

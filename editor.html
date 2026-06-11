@@ -8,60 +8,178 @@
     <link rel="stylesheet" href="css/nav.css">
     <link rel="stylesheet" href="css/effects.css">
     <link rel="stylesheet" href="css/editor.css">
+    <style>
+        .auth-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 2000;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .auth-box {
+            background: rgba(10,14,42,0.95);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 400px; width: 90%;
+            text-align: center;
+        }
+        .auth-box h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            color: var(--cyan);
+            margin-bottom: 10px;
+        }
+        .auth-box p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 25px;
+        }
+        .auth-box input {
+            width: 100%;
+            padding: 14px 18px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            outline: none;
+            margin-bottom: 15px;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        .auth-box input:focus { border-color: rgba(0,240,255,0.4); }
+        .auth-error {
+            color: #ff4466;
+            font-size: 0.8rem;
+            margin-bottom: 15px;
+            min-height: 20px;
+        }
+        .auth-box .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, rgba(0,240,255,0.2), rgba(168,85,247,0.2));
+            border: 1px solid rgba(0,240,255,0.5);
+            border-radius: 10px;
+            color: var(--cyan);
+            font-size: 0.95rem;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+        }
+        #editorContainer { display: none; }
+    </style>
 </head>
 <body>
     <div id="starfield"></div>
-    <nav>
-        <a href="index.html" class="logo">MY PLANET</a>
-        <ul class="nav-links">
-            <li><a href="index.html#home">首页</a></li>
-            <li><a href="index.html#about">关于</a></li>
-            <li><a href="index.html#skills">技能</a></li>
-            <li><a href="blog.html">日志</a></li>
-            <li><a href="admin.html" class="active">控制台</a></li>
-            <li><a href="index.html#contact">联系</a></li>
-        </ul>
-    </nav>
 
-    <div class="container">
-        <div class="editor-header">
-            <h1 id="editorTitle">// NEW POST</h1>
-            <div class="editor-actions">
-                <a href="admin.html" class="btn btn-back">← 返回</a>
-                <button class="btn btn-draft" onclick="save('draft')">保存草稿</button>
-                <button class="btn btn-publish" onclick="save('published')">发布</button>
+    <!-- 认证界面 -->
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-box">
+            <h2>// ACCESS</h2>
+            <p>请输入密码以访问编辑器</p>
+            <div class="auth-error" id="authError"></div>
+            <input type="password" id="authPassword" placeholder="密码">
+            <button class="btn" id="authBtn" onclick="handleAuth()">登录</button>
+        </div>
+    </div>
+
+    <!-- 编辑器 -->
+    <div id="editorContainer">
+        <nav>
+            <a href="index.html" class="logo">MY PLANET</a>
+            <ul class="nav-links">
+                <li><a href="index.html#home">首页</a></li>
+                <li><a href="index.html#about">关于</a></li>
+                <li><a href="index.html#skills">技能</a></li>
+                <li><a href="blog.html">日志</a></li>
+                <li><a href="admin.html" class="active">控制台</a></li>
+                <li><a href="index.html#contact">联系</a></li>
+            </ul>
+        </nav>
+
+        <div class="container">
+            <div class="editor-header">
+                <h1 id="editorTitle">// NEW POST</h1>
+                <div class="editor-actions">
+                    <a href="admin.html" class="btn btn-back">← 返回</a>
+                    <button class="btn btn-draft" onclick="save('draft')">保存草稿</button>
+                    <button class="btn btn-publish" onclick="save('published')">发布</button>
+                </div>
             </div>
-        </div>
 
-        <div class="form-group">
-            <label class="form-label">标题</label>
-            <input type="text" class="title-input" id="postTitle" placeholder="输入文章标题...">
-        </div>
+            <div class="form-group">
+                <label class="form-label">标题</label>
+                <input type="text" class="title-input" id="postTitle" placeholder="输入文章标题...">
+            </div>
 
-        <div class="form-group">
-            <label class="form-label">标签</label>
-            <input type="text" class="tags-input" id="postTags" placeholder="tech, life, ai, design">
-            <div class="tags-hint">用逗号分隔，例如：tech, life, ai</div>
-        </div>
+            <div class="form-group">
+                <label class="form-label">标签</label>
+                <input type="text" class="tags-input" id="postTags" placeholder="tech, life, ai, design">
+                <div class="tags-hint">用逗号分隔，例如：tech, life, ai</div>
+            </div>
 
-        <div class="editor-tabs">
-            <button class="editor-tab active" onclick="switchTab('edit')">编辑</button>
-            <button class="editor-tab" onclick="switchTab('preview')">预览</button>
-        </div>
+            <div class="editor-tabs">
+                <button class="editor-tab active" onclick="switchTab('edit')">编辑</button>
+                <button class="editor-tab" onclick="switchTab('preview')">预览</button>
+            </div>
 
-        <textarea class="content-area" id="postContent" placeholder="开始写作...&#10;&#10;支持 Markdown 语法：&#10;# 标题&#10;## 二级标题&#10;**粗体** *斜体*&#10;- 列表项&#10;> 引用&#10;`代码`&#10;```代码块```&#10;---"></textarea>
-        <div class="preview-area" id="previewArea"></div>
+            <textarea class="content-area" id="postContent" placeholder="开始写作..."></textarea>
+            <div class="preview-area" id="previewArea"></div>
+        </div>
     </div>
 
     <div id="toast" class="toast"></div>
 
-    <footer>© 2026 MY PLANET — EDITOR</footer>
+    <footer id="editorFooter" style="display:none;">© 2026 MY PLANET — EDITOR</footer>
 
     <script src="js/core/utils.js"></script>
     <script src="js/core/markdown.js"></script>
     <script src="js/core/stars.js"></script>
     <script src="js/core/bg.js"></script>
+    <script src="js/core/auth.js"></script>
     <script src="js/core/storage.js"></script>
     <script src="js/editor.js"></script>
+    <script>
+        var authState = Auth.requireAuth();
+
+        if (authState === 'authenticated') {
+            document.getElementById('authOverlay').style.display = 'none';
+            document.getElementById('editorContainer').style.display = 'block';
+            document.getElementById('editorFooter').style.display = 'block';
+            initEditor();
+        } else if (authState === 'setup') {
+            document.querySelector('.auth-box h2').textContent = '// SET PASSWORD';
+            document.querySelector('.auth-box p').textContent = '首次访问，请设置管理员密码';
+            document.getElementById('authBtn').textContent = '设置密码';
+        }
+
+        async function handleAuth() {
+            var pwd = document.getElementById('authPassword').value;
+            var errEl = document.getElementById('authError');
+            if (!pwd) { errEl.textContent = '请输入密码'; return; }
+            if (pwd.length < 4) { errEl.textContent = '密码至少4位'; return; }
+            errEl.textContent = '';
+
+            if (authState === 'setup') {
+                await Auth.setup(pwd);
+                document.getElementById('authOverlay').style.display = 'none';
+                document.getElementById('editorContainer').style.display = 'block';
+                document.getElementById('editorFooter').style.display = 'block';
+                initEditor();
+            } else {
+                var ok = await Auth.login(pwd);
+                if (ok) {
+                    document.getElementById('authOverlay').style.display = 'none';
+                    document.getElementById('editorContainer').style.display = 'block';
+                    document.getElementById('editorFooter').style.display = 'block';
+                    initEditor();
+                } else {
+                    errEl.textContent = '密码错误';
+                    document.getElementById('authPassword').value = '';
+                }
+            }
+        }
+
+        document.getElementById('authPassword').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') handleAuth();
+        });
+    </script>
 </body>
 </html>
