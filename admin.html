@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>控制台 | Admin Panel</title>
+    <meta name="description" content="MY PLANET 控制台 - 管理文章、评论和网站设置">
+    <meta name="robots" content="noindex, nofollow">
     <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/nav.css">
+    <link rel="stylesheet" href="css/glass-nav.css">
     <link rel="stylesheet" href="css/effects.css">
     <link rel="stylesheet" href="css/admin.css">
     <style>
@@ -92,14 +94,18 @@
 
     <nav>
         <a href="index.html" class="logo">MY PLANET</a>
-        <ul class="nav-links">
-            <li><a href="index.html#home">首页</a></li>
-            <li><a href="index.html#about">关于</a></li>
-            <li><a href="index.html#skills">技能</a></li>
-            <li><a href="blog.html">日志</a></li>
-            <li><a href="admin.html" class="active">控制台</a></li>
-            <li><a href="index.html#contact">联系</a></li>
-        </ul>
+        <div class="nav-right">
+            <ul class="nav-links">
+                <li><a href="index.html#home">首页</a></li>
+                <li><a href="index.html#about">关于</a></li>
+                <li><a href="index.html#skills">技能</a></li>
+                <li><a href="blog.html">日志</a></li>
+                <li><a href="admin.html" class="active">控制台</a></li>
+                <li><a href="index.html#contact">联系</a></li>
+            </ul>
+            <a href="feed.html" class="rss-link" title="RSS 订阅">📡</a>
+            <button class="theme-toggle" id="themeToggle" onclick="ThemeManager.toggle()">☀️</button>
+        </div>
     </nav>
 
     <!-- 认证界面 -->
@@ -132,6 +138,41 @@
                 <button class="btn btn-publish" onclick="exportData()">导出数据</button>
                 <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(event)">
                 <button class="btn btn-draft" onclick="document.getElementById('importFile').click()">导入数据</button>
+            </div>
+
+            <div class="analytics-section" style="margin-top: 60px;">
+                <h2 style="font-family: 'Orbitron', sans-serif; font-size: 1.2rem; color: var(--cyan); margin-bottom: 25px;">// ANALYTICS</h2>
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <div class="analytics-value" id="totalViews">0</div>
+                        <div class="analytics-label">总浏览量</div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="analytics-value" id="todayViews">0</div>
+                        <div class="analytics-label">今日浏览</div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="analytics-value" id="totalPosts">0</div>
+                        <div class="analytics-label">已发布文章</div>
+                    </div>
+                </div>
+
+                <div class="analytics-chart-container">
+                    <div class="chart-header">
+                        <span class="chart-title">浏览趋势</span>
+                        <div class="chart-filter">
+                            <button class="chart-btn active" onclick="switchChartRange(7, this)">7天</button>
+                            <button class="chart-btn" onclick="switchChartRange(30, this)">30天</button>
+                            <button class="chart-btn" onclick="switchChartRange(365, this)">全部</button>
+                        </div>
+                    </div>
+                    <canvas id="viewsChart" width="800" height="200"></canvas>
+                </div>
+
+                <div class="analytics-top5">
+                    <div class="top5-title">热门文章 TOP5</div>
+                    <div id="top5List" class="top5-list"></div>
+                </div>
             </div>
 
             <div style="margin-top: 60px;">
@@ -183,7 +224,10 @@
     <script src="js/core/bg.js"></script>
     <script src="js/core/auth.js"></script>
     <script src="js/core/storage.js"></script>
+    <script src="js/core/theme.js"></script>
+    <script src="js/core/glass-nav.js"></script>
     <script src="js/admin.js"></script>
+    <script>ThemeManager.init();</script>
     <script>
         var authState = Auth.requireAuth();
         var authOverlay = document.getElementById('authOverlay');

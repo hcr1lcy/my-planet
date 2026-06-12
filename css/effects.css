@@ -6,6 +6,10 @@
   background: radial-gradient(ellipse at 20% 50%, var(--bg-dark) 0%, var(--bg-black) 70%);
 }
 
+[data-theme="light"] #starfield {
+  opacity: 0.3;
+}
+
 .star {
   position: absolute;
   background: var(--text-primary);
@@ -44,3 +48,4 @@
 
 [data-theme="light"] .scanline { display: none; }
 [data-theme="light"] .cursor-glow { display: none; }
+[data-theme="light"] .star { opacity: 0.3; }

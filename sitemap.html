@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MY PLANET Sitemap Generator</title>
+  <style>
+    body { font-family: monospace; background: #111; color: #00f0ff; padding: 40px; }
+    pre { white-space: pre-wrap; word-break: break-all; background: #1a1a2e; padding: 20px; border-radius: 8px; border: 1px solid #333; }
+    h1 { font-family: 'Orbitron', sans-serif; }
+    .note { color: #888; margin: 20px 0; }
+    .copy-btn { padding: 10px 20px; background: rgba(0,240,255,0.2); border: 1px solid #00f0ff; color: #00f0ff; border-radius: 6px; cursor: pointer; margin: 10px 5px 10px 0; }
+    .copy-btn:hover { background: rgba(0,240,255,0.3); }
+  </style>
+</head>
+<body>
+  <h1>Sitemap Generator</h1>
+  <p class="note">此页面用于生成 sitemap.xml。点击复制按钮将 XML 内容复制到剪贴板，然后保存为 sitemap.xml 文件。</p>
+  <button class="copy-btn" onclick="copySitemap()">复制 XML</button>
+  <button class="copy-btn" onclick="downloadSitemap()">下载 sitemap.xml</button>
+  <pre id="sitemapOutput"></pre>
+  <script src="js/core/utils.js"></script>
+  <script>
+    function generateSitemap() {
+      var baseUrl = 'https://hcr1lcy.github.io/my-planet/';
+      var now = new Date().toISOString().split('T')[0];
+
+      var xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+      xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+
+      // 静态页面
+      var staticPages = [
+        { path: '', priority: '1.0', changefreq: 'weekly' },
+        { path: 'blog.html', priority: '0.9', changefreq: 'daily' },
+        { path: 'feed.html', priority: '0.5', changefreq: 'weekly' }
+      ];
+
+      staticPages.forEach(function(page) {
+        xml += '  <url>\n';
+        xml += '    <loc>' + baseUrl + page.path + '</loc>\n';
+        xml += '    <lastmod>' + now + '</lastmod>\n';
+        xml += '    <changefreq>' + page.changefreq + '</changefreq>\n';
+        xml += '    <priority>' + page.priority + '</priority>\n';
+        xml += '  </url>\n';
+      });
+
+      // 动态文章页
+      var posts = getPosts().filter(function(p) { return p.status === 'published'; });
+      posts.forEach(function(post) {
+        var postDate = new Date(post.updatedAt || post.createdAt).toISOString().split('T')[0];
+        xml += '  <url>\n';
+        xml += '    <loc>' + baseUrl + 'post.html?id=' + post.id + '</loc>\n';
+        xml += '    <lastmod>' + postDate + '</lastmod>\n';
+        xml += '    <changefreq>monthly</changefreq>\n';
+        xml += '    <priority>0.8</priority>\n';
+        xml += '  </url>\n';
+      });
+
+      xml += '</urlset>';
+      return xml;
+    }
+
+    var sitemap = generateSitemap();
+    document.getElementById('sitemapOutput').textContent = sitemap;
+
+    function copySitemap() {
+      navigator.clipboard.writeText(sitemap).then(function() {
+        alert('Sitemap XML 已复制到剪贴板');
+      });
+    }
+
+    function downloadSitemap() {
+      var blob = new Blob([sitemap], { type: 'application/xml' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'sitemap.xml';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>

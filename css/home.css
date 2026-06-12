@@ -295,12 +295,12 @@
     font-size: 0.85rem;
 }
 
-.skill-label span:first-child { color: rgba(255,255,255,0.8); }
+.skill-label span:first-child { color: var(--text-secondary); }
 .skill-label span:last-child { font-family: 'Orbitron', sans-serif; color: var(--cyan); }
 
 .skill-bar {
     height: 6px;
-    background: rgba(255,255,255,0.05);
+    background: var(--card-border);
     border-radius: 3px;
     overflow: hidden;
 }
@@ -381,7 +381,7 @@
     background: transparent;
     border: 1px solid rgba(0,240,255,0.3);
     border-radius: 50px;
-    color: rgba(255,255,255,0.8);
+    color: var(--text-secondary);
     text-decoration: none;
     font-size: 0.9rem;
     transition: all 0.3s;

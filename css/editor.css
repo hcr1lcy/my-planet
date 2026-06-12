@@ -20,7 +20,7 @@
 .btn-publish { background: linear-gradient(135deg, rgba(0,240,255,0.2), rgba(168,85,247,0.2)); border-color: rgba(0,240,255,0.5); color: var(--cyan); font-family: 'Orbitron', sans-serif; letter-spacing: 1px; }
 .btn-publish:hover { background: rgba(0,240,255,0.25); box-shadow: 0 0 20px rgba(0,240,255,0.15); }
 .btn-back { background: transparent; border-color: rgba(255,255,255,0.15); color: var(--text-secondary); text-decoration: none; }
-.btn-back:hover { border-color: rgba(255,255,255,0.3); color: #fff; }
+.btn-back:hover { border-color: rgba(255,255,255,0.3); color: var(--text-primary); }
 
 .form-group { margin-bottom: 25px; }
 .form-label {
@@ -70,7 +70,7 @@
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     border-top: none; border-radius: 0 0 12px 12px;
-    color: rgba(255,255,255,0.85); font-size: 0.95rem; line-height: 1.9;
+    color: var(--text-primary); font-size: 0.95rem; line-height: 1.9;
     outline: none; resize: vertical;
     font-family: 'Noto Sans SC', sans-serif; transition: border-color 0.3s;
 }
@@ -82,7 +82,7 @@
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     border-top: none; border-radius: 0 0 12px 12px;
-    color: rgba(255,255,255,0.8); line-height: 2;
+    color: var(--text-secondary); line-height: 2;
 }
 .preview-area h1, .preview-area h2, .preview-area h3 { color: var(--cyan); margin: 20px 0 10px; font-family: 'Orbitron', sans-serif; }
 .preview-area h2 { font-size: 1.4rem; }
@@ -90,7 +90,7 @@
 .preview-area p { margin-bottom: 15px; }
 .preview-area code { background: rgba(0,240,255,0.08); padding: 2px 8px; border-radius: 4px; color: var(--cyan); font-size: 0.9rem; }
 .preview-area pre { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 20px; margin: 15px 0; overflow-x: auto; }
-.preview-area pre code { background: none; padding: 0; color: rgba(255,255,255,0.8); }
+.preview-area pre code { background: none; padding: 0; color: var(--text-secondary); }
 .preview-area blockquote { border-left: 3px solid var(--purple); padding: 12px 20px; margin: 15px 0; background: rgba(168,85,247,0.05); border-radius: 0 8px 8px 0; color: var(--text-secondary); font-style: italic; }
 .preview-area ul, .preview-area ol { margin: 10px 0; padding-left: 25px; }
 .preview-area li { margin-bottom: 5px; }

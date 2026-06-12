@@ -10,6 +10,10 @@ nav {
   backdrop-filter: blur(10px);
 }
 
+[data-theme="light"] nav {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, transparent 100%);
+}
+
 .logo {
   font-family: 'Orbitron', sans-serif;
   font-size: 1.4rem;
@@ -57,8 +61,51 @@ nav {
   width: 100%;
 }
 
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.rss-link {
+  color: var(--text-muted);
+  font-size: 1rem;
+  transition: color 0.3s;
+  text-decoration: none;
+}
+
+.rss-link:hover {
+  color: #ff6600;
+}
+
+.theme-toggle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-toggle:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: rgba(0,240,255,0.1);
+}
+
+[data-theme="light"] .nav-links a {
+  color: rgba(26, 26, 46, 0.7);
+}
+
 @media (max-width: 768px) {
   nav { padding: 15px 20px; }
   .nav-links { gap: 15px; }
   .nav-links a { font-size: 0.75rem; }
+  .theme-toggle { width: 36px; height: 36px; font-size: 1rem; }
 }

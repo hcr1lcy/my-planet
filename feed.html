@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MY PLANET RSS Feed</title>
+  <style>
+    body { font-family: monospace; background: #111; color: #00f0ff; padding: 40px; }
+    pre { white-space: pre-wrap; word-break: break-all; background: #1a1a2e; padding: 20px; border-radius: 8px; border: 1px solid #333; }
+    h1 { font-family: 'Orbitron', sans-serif; }
+    .note { color: #888; margin: 20px 0; }
+    .copy-btn { padding: 10px 20px; background: rgba(0,240,255,0.2); border: 1px solid #00f0ff; color: #00f0ff; border-radius: 6px; cursor: pointer; margin: 10px 5px 10px 0; }
+    .copy-btn:hover { background: rgba(0,240,255,0.3); }
+  </style>
+</head>
+<body>
+  <h1>RSS Feed Generator</h1>
+  <p class="note">此页面用于生成 RSS 订阅源。点击复制按钮将 XML 内容复制到剪贴板，然后保存为 feed.xml 文件。</p>
+  <button class="copy-btn" onclick="copyRSS()">复制 XML</button>
+  <button class="copy-btn" onclick="downloadRSS()">下载 feed.xml</button>
+  <pre id="rssOutput"></pre>
+  <script src="js/core/utils.js"></script>
+  <script>
+    function generateRSS() {
+      var posts = getPosts().filter(function(p) { return p.status === 'published'; });
+      var baseUrl = 'https://hcr1lcy.github.io/my-planet/';
+      var now = new Date().toUTCString();
+
+      var xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+      xml += '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">\n';
+      xml += '  <channel>\n';
+      xml += '    <title>MY PLANET - 星际日志</title>\n';
+      xml += '    <link>' + baseUrl + '</link>\n';
+      xml += '    <description>科幻个人星球主题网站的博客文章</description>\n';
+      xml += '    <language>zh-CN</language>\n';
+      xml += '    <lastBuildDate>' + now + '</lastBuildDate>\n';
+      xml += '    <atom:link href="' + baseUrl + 'feed.xml" rel="self" type="application/rss+xml"/>\n';
+
+      posts.forEach(function(post) {
+        var postUrl = baseUrl + 'post.html?id=' + post.id;
+        var pubDate = new Date(post.createdAt).toUTCString();
+        var description = post.content.replace(/[#*`>\-\[\]]/g, '').slice(0, 200) + '...';
+        var content = post.content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+        xml += '    <item>\n';
+        xml += '      <title>' + escapeHtml(post.title) + '</title>\n';
+        xml += '      <link>' + postUrl + '</link>\n';
+        xml += '      <guid isPermaLink="true">' + postUrl + '</guid>\n';
+        xml += '      <pubDate>' + pubDate + '</pubDate>\n';
+        xml += '      <description>' + escapeHtml(description) + '</description>\n';
+        xml += '      <content:encoded><![CDATA[' + content + ']]></content:encoded>\n';
+        xml += '    </item>\n';
+      });
+
+      xml += '  </channel>\n';
+      xml += '</rss>';
+
+      return xml;
+    }
+
+    var rss = generateRSS();
+    document.getElementById('rssOutput').textContent = rss;
+
+    function copyRSS() {
+      navigator.clipboard.writeText(rss).then(function() {
+        alert('RSS XML 已复制到剪贴板');
+      });
+    }
+
+    function downloadRSS() {
+      var blob = new Blob([rss], { type: 'application/xml' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'feed.xml';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>

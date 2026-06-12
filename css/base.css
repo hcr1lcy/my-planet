@@ -10,6 +10,13 @@
   --card-bg: rgba(0, 240, 255, 0.03);
   --card-border: rgba(0, 240, 255, 0.1);
   --card-radius: 16px;
+  --glass-blur: 20px;
+  --glass-bg: rgba(0, 0, 0, 0.35);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-highlight: rgba(255, 255, 255, 0.12);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --glass-transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  --nav-highlight-x: -300px;
 }
 
 [data-theme="light"] {
@@ -23,6 +30,10 @@
   --text-muted: rgba(26, 26, 46, 0.4);
   --card-bg: rgba(0, 153, 204, 0.05);
   --card-border: rgba(0, 153, 204, 0.15);
+  --glass-bg: rgba(255, 255, 255, 0.45);
+  --glass-border: rgba(0, 0, 0, 0.06);
+  --glass-highlight: rgba(255, 255, 255, 0.5);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+SC:wght@300;400;700&display=swap');

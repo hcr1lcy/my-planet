@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /editor.html
+Disallow: /feed.html
+
+Sitemap: https://hcr1lcy.github.io/my-planet/sitemap.html

@@ -15,14 +15,22 @@ function renderPosts() {
     return;
   }
 
-  list.innerHTML = posts.sort(function(a, b) { return b.updatedAt - a.updatedAt; }).map(function(post) {
+  list.innerHTML = posts.sort(function(a, b) {
+    if (a.pinned && !b.pinned) return -1;
+    if (!a.pinned && b.pinned) return 1;
+    return b.updatedAt - a.updatedAt;
+  }).map(function(post) {
     var tagsStr = (post.tags || []).map(function(t) { return t.toUpperCase(); }).join(', ') || '无标签';
     var commentCount = (post.comments || []).length;
     var statusLabel = post.status === 'published' ? '\u2705 已发布' : '\uD83D\uDCDD 草稿';
+    var pinnedLabel = post.pinned ? ' <span style="color:#ffaa00;">📌 置顶</span>' : '';
+    var pinBtn = post.status === 'published'
+      ? '<button class="btn-pin' + (post.pinned ? ' pinned' : '') + '" onclick="togglePin(\'' + post.id + '\')">' + (post.pinned ? '取消置顶' : '置顶') + '</button>'
+      : '';
     return '<div class="post-item">' +
       '<div class="post-status ' + post.status + '"></div>' +
       '<div class="post-info">' +
-        '<h3>' + escapeHtml(post.title) + '</h3>' +
+        '<h3>' + escapeHtml(post.title) + pinnedLabel + '</h3>' +
         '<div class="meta">' +
           '<span>\uD83D\uDCC5 ' + formatDate(post.updatedAt) + '</span>' +
           '<span>\uD83C\uDFF7 ' + tagsStr + '</span>' +
@@ -31,12 +39,24 @@ function renderPosts() {
         '</div>' +
       '</div>' +
       '<div class="post-actions">' +
+        pinBtn +
         '<a href="editor.html?id=' + post.id + '" class="btn-edit">编辑</a>' +
         (post.status === 'published' ? '<a href="post.html?id=' + post.id + '" class="btn-view" target="_blank">查看</a>' : '') +
         '<button class="btn-delete" onclick="openDeleteModal(\'' + post.id + '\')">删除</button>' +
       '</div>' +
     '</div>';
   }).join('');
+}
+
+function togglePin(id) {
+  var posts = getPosts();
+  var idx = posts.findIndex(function(p) { return p.id === id; });
+  if (idx === -1) return;
+  posts[idx].pinned = !posts[idx].pinned;
+  posts[idx].updatedAt = Date.now();
+  savePosts(posts);
+  Storage.autoBackup();
+  renderPosts();
 }
 
 function openDeleteModal(id) {
@@ -132,8 +152,52 @@ function importData(e) {
   reader.readAsText(file);
 }
 
+var currentChartRange = 7;
+
+function switchChartRange(days, btn) {
+  currentChartRange = days;
+  document.querySelectorAll('.chart-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderAnalytics();
+}
+
+function renderAnalytics() {
+  var totalViews = Analytics.getTotalViews();
+  var todayViews = Analytics.getViewsByDate(1);
+  var todayCount = Object.values(todayViews).reduce(function(a, b) { return a + b; }, 0);
+  var published = getPosts().filter(function(p) { return p.status === 'published'; }).length;
+
+  document.getElementById('totalViews').textContent = totalViews;
+  document.getElementById('todayViews').textContent = todayCount;
+  document.getElementById('totalPosts').textContent = published;
+
+  Analytics.drawChart('viewsChart', currentChartRange);
+
+  var top5 = Analytics.getViewsByPost();
+  var top5List = document.getElementById('top5List');
+  if (top5.length === 0) {
+    top5List.innerHTML = '<div class="top5-empty">暂无浏览数据</div>';
+    return;
+  }
+  var posts = getPosts();
+  top5List.innerHTML = top5.map(function(item, i) {
+    var post = posts.find(function(p) { return p.id === item[0]; });
+    var title = post ? post.title : item[0];
+    var barWidth = top5[0][1] > 0 ? (item[1] / top5[0][1] * 100) : 0;
+    return '<div class="top5-item">' +
+      '<span class="top5-rank">' + (i + 1) + '</span>' +
+      '<div class="top5-info">' +
+        '<div class="top5-name">' + escapeHtml(title) + '</div>' +
+        '<div class="top5-bar"><div class="top5-fill" style="width:' + barWidth + '%"></div></div>' +
+      '</div>' +
+      '<span class="top5-count">' + item[1] + ' 次</span>' +
+    '</div>';
+  }).join('');
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   renderPosts();
+  renderAnalytics();
   loadBgSettings();
   createStarfield(document.getElementById('starfield'), 100);
   initCursorGlow();

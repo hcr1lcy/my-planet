@@ -4,8 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>星际个人主页 | My Planet</title>
+    <meta name="description" content="MY PLANET - 科幻个人星球主题网站，探索数字宇宙的边界">
+    <meta name="keywords" content="个人网站,科幻,前端开发,JavaScript,CSS,博客">
+    <meta name="author" content="MY PLANET">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#00f0ff">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "MY PLANET",
+      "url": "https://hcr1lcy.github.io/my-planet/",
+      "description": "科幻个人星球主题网站，探索数字宇宙的边界"
+    }
+    </script>
     <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/nav.css">
+    <link rel="stylesheet" href="css/glass-nav.css">
     <link rel="stylesheet" href="css/effects.css">
     <link rel="stylesheet" href="css/animations.css">
     <link rel="stylesheet" href="css/home.css">
@@ -17,14 +31,18 @@
 
     <nav>
         <a href="index.html" class="logo">MY PLANET</a>
-        <ul class="nav-links">
-            <li><a href="#home">首页</a></li>
-            <li><a href="#about">关于</a></li>
-            <li><a href="#skills">技能</a></li>
-            <li><a href="blog.html">日志</a></li>
-            <li><a href="admin.html">控制台</a></li>
-            <li><a href="#contact">联系</a></li>
-        </ul>
+        <div class="nav-right">
+            <ul class="nav-links">
+                <li><a href="#home">首页</a></li>
+                <li><a href="#about">关于</a></li>
+                <li><a href="#skills">技能</a></li>
+                <li><a href="blog.html">日志</a></li>
+                <li><a href="admin.html">控制台</a></li>
+                <li><a href="#contact">联系</a></li>
+            </ul>
+            <a href="feed.html" class="rss-link" title="RSS 订阅">📡</a>
+            <button class="theme-toggle" id="themeToggle" onclick="ThemeManager.toggle()">☀️</button>
+        </div>
     </nav>
 
     <section class="hero" id="home">
@@ -104,6 +122,13 @@
     <script src="js/core/bg.js"></script>
     <script src="js/core/theme.js"></script>
     <script src="js/core/animations.js"></script>
+    <script src="js/core/glass-nav.js"></script>
     <script src="js/home.js"></script>
+    <script>ThemeManager.init(); Animations.init();</script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').catch(function() {});
+      }
+    </script>
 </body>
 </html>
